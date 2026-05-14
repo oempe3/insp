@@ -1,344 +1,1028 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>FOPE III · Importador JSON</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>FOPE III · Envio de JSON</title>
+
   <style>
-    :root{
-      --blue:#0b3d78;--blue2:#155da8;--green:#067647;--red:#b42318;--amber:#b54708;
-      --bg:#eef3f8;--card:#fff;--ink:#102033;--muted:#667085;--line:#d7e0ea;
-      --okbg:#dcfae6;--errbg:#fee4e2;--warnbg:#fff4d6;--shadow:0 18px 42px rgba(16,32,51,.10)
+    :root {
+      --bg: #eef3f8;
+      --card: #ffffff;
+      --ink: #111827;
+      --muted: #667085;
+      --line: #d7e0ea;
+      --blue: #0b3d78;
+      --blue2: #155da8;
+      --green: #087443;
+      --green-bg: #dcfae6;
+      --red: #b42318;
+      --red-bg: #fee4e2;
+      --amber: #b54708;
+      --amber-bg: #fff4d6;
+      --shadow: 0 18px 42px rgba(16, 32, 51, .10);
     }
-    *{box-sizing:border-box}
-    body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:linear-gradient(135deg,#f8fbff,#edf4fb 45%,#f4fbf7);color:var(--ink)}
-    .shell{max-width:1240px;margin:0 auto;padding:22px}
-    .hero{background:rgba(255,255,255,.94);border:1px solid rgba(11,61,120,.16);border-radius:28px;box-shadow:var(--shadow);overflow:hidden;margin-bottom:18px}
-    .heroTop{display:grid;grid-template-columns:1fr auto;gap:18px;align-items:center;padding:24px 26px;background:linear-gradient(120deg,#fff,#f5faff 60%,#effaf4)}
-    h1{margin:0;color:var(--blue);font-size:30px;letter-spacing:-.7px}
-    .hero p{margin:8px 0 0;color:var(--muted);font-weight:700}
-    .pill{display:inline-flex;border-radius:999px;background:#eef6ff;color:var(--blue);padding:9px 12px;font-weight:900;font-size:12px}
-    .steps{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line)}
-    .step{padding:14px 18px;border-right:1px solid var(--line);color:var(--muted);font-weight:800;font-size:13px}.step:last-child{border-right:0}.step b{display:block;color:var(--blue);font-size:14px}
-    .grid{display:grid;grid-template-columns:1.05fr .95fr;gap:18px}
-    .card{background:rgba(255,255,255,.97);border:1px solid var(--line);border-radius:24px;box-shadow:0 12px 30px rgba(16,32,51,.08);padding:18px}
-    h2{font-size:18px;margin:0 0 12px;color:var(--blue)}
-    .drop{border:2px dashed #9ab6d6;border-radius:20px;background:#f8fbff;padding:18px;text-align:center;color:var(--muted);font-weight:900;cursor:pointer}
-    .drop.drag{border-color:var(--blue2);background:#eef6ff}
-    textarea{width:100%;min-height:410px;border:1px solid var(--line);border-radius:18px;padding:14px;background:#0b1220;color:#d7eaff;font-family:Consolas,Monaco,monospace;font-size:12.5px;line-height:1.45;resize:vertical;outline:none}
-    .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
-    button{border:0;border-radius:14px;padding:12px 15px;font-weight:900;cursor:pointer;display:inline-flex;gap:8px;align-items:center;justify-content:center}
-    button:hover{transform:translateY(-1px)}
-    .primary{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff}.green{background:linear-gradient(135deg,#007a3d,#12a05c);color:#fff}.gray{background:#e8eef5;color:#19314d}.red{background:#b42318;color:#fff}.outline{background:#fff;color:var(--blue);border:1px solid #b9cbe0}
-    .msg{display:none;margin-top:12px;padding:12px 14px;border-radius:16px;font-weight:800;white-space:pre-wrap}
-    .msg.ok{display:block;background:var(--okbg);color:var(--green)}.msg.err{display:block;background:var(--errbg);color:var(--red)}.msg.warn{display:block;background:var(--warnbg);color:var(--amber)}
-    label{display:block;font-size:12px;font-weight:900;color:#344054;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em}
-    input,select{width:100%;border:1px solid var(--line);border-radius:14px;padding:12px;background:#fff;color:var(--ink);font-weight:800}
-    .formGrid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px}
-    .kv{display:grid;grid-template-columns:165px 1fr;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:#fff}
-    .kv div{padding:10px 12px;border-bottom:1px solid var(--line)}.kv div:nth-last-child(-n+2){border-bottom:0}.kv .k{background:#f5f8fb;font-weight:900;color:#475467;text-transform:uppercase;font-size:12px}
-    .badge{display:inline-flex;align-items:center;border-radius:999px;padding:6px 10px;font-weight:900;font-size:12px}.okb{background:var(--okbg);color:var(--green)}.badb{background:var(--errbg);color:var(--red)}.warnb{background:var(--warnbg);color:var(--amber)}
-    table{width:100%;border-collapse:separate;border-spacing:0;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:#fff}th,td{padding:10px 12px;border-bottom:1px solid var(--line);font-size:13px;text-align:left;vertical-align:top}th{background:#f5f8fb;color:#475467;font-size:12px;text-transform:uppercase}tr:last-child td{border-bottom:0}
-    .mini{font-family:Consolas,monospace;font-size:12px;background:#f5f8fb;border:1px solid var(--line);padding:12px;border-radius:16px;white-space:pre-wrap;max-height:230px;overflow:auto}
-    .editGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:12px 0}
-    .footer{margin:18px 0 6px;text-align:center;color:var(--muted);font-size:12px}
-    @media(max-width:980px){.grid,.heroTop,.formGrid,.editGrid{grid-template-columns:1fr}.steps{grid-template-columns:1fr 1fr}}
-    @media(max-width:620px){.shell{padding:12px}.steps,.kv{grid-template-columns:1fr}h1{font-size:24px}}
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, Segoe UI, Arial, sans-serif;
+      background: linear-gradient(135deg, #f8fbff, #edf4fb 45%, #f4fbf7);
+      color: var(--ink);
+    }
+
+    .shell {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 22px;
+    }
+
+    .hero {
+      background: rgba(255, 255, 255, .96);
+      border: 1px solid rgba(11, 61, 120, .16);
+      border-radius: 26px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      margin-bottom: 18px;
+    }
+
+    .hero-top {
+      padding: 24px 26px;
+      background: linear-gradient(120deg, #fff, #f5faff 60%, #effaf4);
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: center;
+    }
+
+    h1 {
+      margin: 0;
+      color: var(--blue);
+      font-size: 29px;
+      letter-spacing: -.6px;
+    }
+
+    .hero p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .pill {
+      display: inline-flex;
+      border-radius: 999px;
+      background: #eef6ff;
+      color: var(--blue);
+      padding: 9px 12px;
+      font-weight: 900;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: .9fr 1.1fr;
+      gap: 18px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, .98);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: 0 12px 30px rgba(16, 32, 51, .08);
+      padding: 18px;
+    }
+
+    h2 {
+      font-size: 18px;
+      margin: 0 0 12px;
+      color: var(--blue);
+    }
+
+    .drop {
+      border: 2px dashed #9ab6d6;
+      border-radius: 20px;
+      background: #f8fbff;
+      padding: 18px;
+      text-align: center;
+      color: var(--muted);
+      font-weight: 900;
+      cursor: pointer;
+      margin-bottom: 12px;
+    }
+
+    .drop.drag {
+      border-color: var(--blue2);
+      background: #eef6ff;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 360px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px;
+      background: #0b1220;
+      color: #d7eaff;
+      font-family: Consolas, Monaco, monospace;
+      font-size: 12.5px;
+      line-height: 1.45;
+      resize: vertical;
+      outline: none;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 12px 0;
+    }
+
+    button {
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 15px;
+      font-weight: 900;
+      cursor: pointer;
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: center;
+      transition: .12s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    button:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .primary {
+      background: linear-gradient(135deg, var(--blue), var(--blue2));
+      color: #fff;
+    }
+
+    .green {
+      background: linear-gradient(135deg, #007a3d, #12a05c);
+      color: #fff;
+    }
+
+    .gray {
+      background: #e8eef5;
+      color: #19314d;
+    }
+
+    .outline {
+      background: #fff;
+      color: var(--blue);
+      border: 1px solid #b9cbe0;
+    }
+
+    .msg {
+      display: none;
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      font-weight: 800;
+      white-space: pre-wrap;
+    }
+
+    .msg.ok {
+      display: block;
+      background: var(--green-bg);
+      color: var(--green);
+    }
+
+    .msg.err {
+      display: block;
+      background: var(--red-bg);
+      color: var(--red);
+    }
+
+    .msg.warn {
+      display: block;
+      background: var(--amber-bg);
+      color: var(--amber);
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 900;
+      color: #344054;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    input,
+    select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 11px 12px;
+      background: #fff;
+      color: var(--ink);
+      font-weight: 800;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      overflow: hidden;
+      background: #fff;
+      margin-bottom: 16px;
+    }
+
+    .summary div {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .summary div:nth-last-child(-n+2) {
+      border-bottom: 0;
+    }
+
+    .summary .k {
+      background: #f5f8fb;
+      font-weight: 900;
+      color: #475467;
+      text-transform: uppercase;
+      font-size: 12px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-weight: 900;
+      font-size: 12px;
+    }
+
+    .okb {
+      background: var(--green-bg);
+      color: var(--green);
+    }
+
+    .badb {
+      background: var(--red-bg);
+      color: var(--red);
+    }
+
+    .warnb {
+      background: var(--amber-bg);
+      color: var(--amber);
+    }
+
+    .editor {
+      display: grid;
+      gap: 12px;
+      max-height: 650px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .field {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px;
+      background: #fbfdff;
+    }
+
+    .field small {
+      display: block;
+      color: var(--muted);
+      font-weight: 800;
+      margin-bottom: 6px;
+      word-break: break-word;
+    }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 140px;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .section {
+      border: 1px solid #cbd8e6;
+      border-radius: 18px;
+      padding: 12px;
+      background: #ffffff;
+    }
+
+    .section-title {
+      font-size: 13px;
+      color: var(--blue);
+      font-weight: 900;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: .03em;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      overflow: hidden;
+      background: #fff;
+      margin-bottom: 14px;
+    }
+
+    th,
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+      font-size: 13px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f5f8fb;
+      color: #475467;
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .mini {
+      font-family: Consolas, Monaco, monospace;
+      font-size: 12px;
+      background: #f5f8fb;
+      border: 1px solid var(--line);
+      padding: 12px;
+      border-radius: 16px;
+      white-space: pre-wrap;
+      max-height: 200px;
+      overflow: auto;
+      margin-bottom: 14px;
+    }
+
+    .footer {
+      margin: 18px 0 6px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    @media(max-width: 980px) {
+      .grid,
+      .hero-top {
+        display: block;
+      }
+
+      .pill {
+        margin-top: 12px;
+      }
+    }
+
+    @media(max-width: 620px) {
+      .shell {
+        padding: 12px;
+      }
+
+      .summary,
+      .field-row {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+    }
   </style>
 </head>
+
 <body>
-<div class="shell">
-  <section class="hero">
-    <div class="heroTop">
-      <div>
-        <h1>FOPE III · Importador e conferência de JSON</h1>
-        <p>Cole o JSON do GPT ou envie um arquivo .json, confira os dados, corrija quando necessário e registre no Apps Script.</p>
-      </div>
-      <span class="pill">Sem senha · Sem token no site</span>
-    </div>
-    <div class="steps">
-      <div class="step"><b>1. Entrada</b>Colar texto ou importar arquivo</div>
-      <div class="step"><b>2. Validação</b>Conferência e correção</div>
-      <div class="step"><b>3. Resumo</b>Manutenção e anotações</div>
-      <div class="step"><b>4. Envio</b>Registro, PDF e e-mail</div>
-    </div>
-  </section>
+  <div class="shell">
 
-  <div class="grid">
-    <section class="card">
-      <h2>Entrada JSON</h2>
-      <div class="drop" id="dropArea">Clique aqui ou arraste o arquivo .json</div>
-      <input id="fileInput" type="file" accept=".json,application/json,text/plain" style="display:none">
-      <div class="toolbar">
-        <button class="gray" id="btnExample">Carregar exemplo</button>
-        <button class="primary" id="btnValidate">Validar / Corrigir</button>
-        <button class="outline" id="btnDownload">Baixar JSON corrigido</button>
-        <button class="gray" id="btnClear">Limpar</button>
+    <section class="hero">
+      <div class="hero-top">
+        <div>
+          <h1>FOPE III · Envio de JSON</h1>
+          <p>Cole ou importe o JSON gerado pelo GPT, edite os dados necessários e envie para registro.</p>
+        </div>
+        <span class="pill">Sem senha · Sem teste · Sem nova janela</span>
       </div>
-      <textarea id="jsonInput" spellcheck="false" placeholder="Cole aqui o JSON gerado pelo GPT."></textarea>
-      <div id="msg" class="msg"></div>
     </section>
 
-    <section class="card">
-      <h2>Resumo de conferência</h2>
-      <div id="resumo" class="kv"><div class="k">Status</div><div>Aguardando JSON.</div></div>
+    <div class="grid">
 
-      <div class="editGrid">
-        <div><label>Formulário</label><input id="editFormulario" placeholder="AAA001 ou AAA002"></div>
-        <div><label>Operador</label><input id="editOperador"></div>
-        <div><label>Data</label><input id="editData" placeholder="DD/MM/AAAA"></div>
-        <div><label>Início</label><input id="editIni" placeholder="HH:MM"></div>
-        <div><label>Final</label><input id="editFim" placeholder="HH:MM"></div>
-      </div>
-      <div class="toolbar">
-        <button class="primary" id="btnApplyEdits">Aplicar correções no JSON</button>
-      </div>
+      <section class="card">
+        <h2>Entrada JSON</h2>
 
-      <h2 style="margin-top:18px">Equipamentos em manutenção</h2>
-      <div id="manutencao"><span class="badge warnb">Aguardando validação</span></div>
-      <h2 style="margin-top:18px">Anotações</h2>
-      <div id="anotacoes" class="mini">-</div>
-      <h2 style="margin-top:18px">Pendências</h2>
-      <div id="pendencias" class="mini">-</div>
+        <div class="drop" id="dropArea">
+          Clique aqui ou arraste o arquivo .json
+        </div>
+
+        <input id="fileInput" type="file" accept=".json,application/json,text/plain" style="display:none">
+
+        <div class="toolbar">
+          <button class="primary" id="btnValidate">Validar e montar edição</button>
+          <button class="outline" id="btnDownload">Baixar JSON editado</button>
+          <button class="gray" id="btnClear">Limpar</button>
+        </div>
+
+        <textarea id="jsonInput" spellcheck="false" placeholder="Cole aqui o JSON gerado pelo GPT."></textarea>
+
+        <div id="msg" class="msg"></div>
+      </section>
+
+      <section class="card">
+        <h2>Resumo de conferência</h2>
+
+        <div id="summary" class="summary">
+          <div class="k">Status</div>
+          <div>Aguardando JSON.</div>
+        </div>
+
+        <h2>Equipamentos em manutenção</h2>
+        <div id="manutencao">
+          <span class="badge warnb">Aguardando validação</span>
+        </div>
+
+        <h2>Anotações</h2>
+        <div id="anotacoes" class="mini">-</div>
+
+        <h2>Pendências</h2>
+        <div id="pendencias" class="mini">-</div>
+
+        <div class="toolbar">
+          <button class="green" id="btnSend" disabled>Enviar para registro</button>
+        </div>
+
+        <div id="sendMsg" class="msg"></div>
+      </section>
+
+    </div>
+
+    <section class="card" style="margin-top:18px">
+      <h2>Edição completa dos dados</h2>
+      <div id="editor" class="editor">
+        <span class="badge warnb">Valide o JSON para liberar os campos editáveis.</span>
+      </div>
     </section>
+
+    <div class="footer">UTE Pernambuco III · FOPE III · Importação JSON operacional</div>
+
   </div>
 
-  <section class="card" style="margin-top:18px">
-    <h2>Envio para Apps Script</h2>
-    <div class="formGrid">
-      <div>
-        <label>URL do Apps Script /exec</label>
-        <input id="endpoint" value="https://script.google.com/macros/s/AKfycby9tTHHnxHCUn5vdKq8cVBoPWLweVkGdDjQNGRaPX9_wNjZKKvelAZ4CNsnqpYE5j-Z/exec">
-      </div>
-      <div>
-        <label>Modo</label>
-        <select id="dryRun"><option value="true">Teste</option><option value="false">Registro definitivo</option></select>
-      </div>
-      <div>
-        <label>E-mail opcional</label>
-        <input id="emailDestino" placeholder="email@empresa.com.br">
-      </div>
-    </div>
-    <div class="toolbar">
-      <button class="primary" id="btnPing">Testar endpoint</button>
-      <button class="green" id="btnSend">Enviar JSON</button>
-      <button class="outline" id="btnOpenExec">Abrir endpoint</button>
-    </div>
-    <div class="msg warn" style="display:block">Para evitar CORS no GitHub Pages, o envio é feito por formulário POST em nova aba. O JSON corrigido é enviado no campo <b>payload</b>.</div>
-    <div id="sendMsg" class="msg"></div>
-  </section>
-
-  <div class="footer">UTE Pernambuco III · FOPE III · JSON sem senha no front-end</div>
-</div>
-
 <script>
-const DEFAULT_ENDPOINT = "https://script.google.com/macros/s/AKfycby9tTHHnxHCUn5vdKq8cVBoPWLweVkGdDjQNGRaPX9_wNjZKKvelAZ4CNsnqpYE5j-Z/exec";
-const STATUS_MA = ["MA","MAN","MNT","MANUT","MANUT.","MANUTENCAO","MANUTENÇÃO","EM_MANUTENCAO","EM_MANUTENÇÃO"];
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwTEzQ9fmOKCpZRHnq7L-tOmFp2c8vEWpHVUjNnHon15AFa0bYe20uu5P_kW32E5lFy/exec";
+
 const $ = id => document.getElementById(id);
+
 let currentJson = null;
 
-function esc(v){return String(v ?? "").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]))}
-function setMsg(id,tipo,txt){const el=$(id);el.className="msg "+tipo;el.innerHTML=txt}
-function clearMsg(id){const el=$(id);el.className="msg";el.innerHTML=""}
-function exemplo(){
-  return {
-    origem:"GPT_FOPEIII",versao_schema:"1.1",gerado_em:new Date().toISOString(),
-    action:"register",dry_run:true,formulario:"AAA001",operador:"Operador Teste",turma:"B",supervisor:"",
-    data:"14/05/2026",horario_inicial:"07:00",horario_final:"19:00",turno:"DIA",email_destino:"",
-    dados:{
-      bomba_diesel:{status_BLE903:"MAN"},
-      separadoras_hfo:{BJJ904:{status:{MA:true}}},
-      anotacoes_p1:["Teste de integração via JSON importado no GitHub Pages."],
-      anotacoes_p2:[],
-      campos_nao_identificados:[]
-    },
-    alertas:[],
-    resumo:{total_manutencao:0,equipamentos_manutencao:[],anotacoes:[]},
-    validacao:{pronto_para_importar:true,pendencias:[],observacoes:[]}
-  }
+const STATUS_MA = [
+  "MA",
+  "MAN",
+  "MNT",
+  "MANUT",
+  "MANUTENCAO",
+  "MANUTENÇÃO",
+  "EM_MANUTENCAO",
+  "EM_MANUTENÇÃO"
+];
+
+function esc(v) {
+  return String(v ?? "").replace(/[&<>"]/g, c => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;"
+  }[c]));
 }
-function normalizarStatus(v){
-  if(v==null)return "";
-  if(typeof v==="string")return v.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toUpperCase().trim().replace(/\./g,"").replace(/\s+/g,"_");
-  if(typeof v==="object"){for(const k of Object.keys(v)){if(v[k]===true)return normalizarStatus(k)} if(v.status)return normalizarStatus(v.status); if(v.valor)return normalizarStatus(v.valor)}
-  return String(v).toUpperCase().trim()
+
+function setMsg(id, tipo, txt) {
+  const el = $(id);
+  el.className = "msg " + tipo;
+  el.innerHTML = txt;
 }
-function isManut(v){const s=normalizarStatus(v);return STATUS_MA.map(normalizarStatus).includes(s)||s.includes("MANUT")}
-function statusDetectado(v){
-  if(typeof v==="object"&&v){for(const k of Object.keys(v)){if(v[k]===true)return normalizarStatus(k)}}
-  return normalizarStatus(v)
+
+function clearMsg(id) {
+  const el = $(id);
+  el.className = "msg";
+  el.innerHTML = "";
 }
-function tentarParse(txt){
+
+function tentarParse(txt) {
   txt = String(txt || "").trim();
-  if(!txt) throw new Error("JSON vazio.");
-  txt = txt.replace(/^\uFEFF/,"");
-  const ini = txt.indexOf("{"), fim = txt.lastIndexOf("}");
-  if(ini >= 0 && fim > ini) txt = txt.slice(ini, fim + 1);
-  try{return JSON.parse(txt)}
-  catch(e){
-    let fix = txt
-      .replace(/,\s*([}\]])/g,"$1")
-      .replace(/[“”]/g,'"')
-      .replace(/[‘’]/g,"'");
-    return JSON.parse(fix);
+
+  if (!txt) {
+    throw new Error("JSON vazio.");
+  }
+
+  txt = txt.replace(/^\uFEFF/, "");
+
+  const ini = txt.indexOf("{");
+  const fim = txt.lastIndexOf("}");
+
+  if (ini >= 0 && fim > ini) {
+    txt = txt.slice(ini, fim + 1);
+  }
+
+  try {
+    return JSON.parse(txt);
+  } catch (e) {
+    const corrigido = txt
+      .replace(/,\s*([}\]])/g, "$1")
+      .replace(/[“”]/g, '"')
+      .replace(/[‘’]/g, "'");
+
+    return JSON.parse(corrigido);
   }
 }
-function buscarManutencao(obj){
-  const out=[];
-  function walk(node,path=[]){
-    if(!node || typeof node !== "object") return;
-    for(const [k,v] of Object.entries(node)){
+
+function normalizarStatus(v) {
+  if (v == null) return "";
+
+  if (typeof v === "string") {
+    return v
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toUpperCase()
+      .trim()
+      .replace(/\./g, "")
+      .replace(/\s+/g, "_");
+  }
+
+  if (typeof v === "object") {
+    for (const k of Object.keys(v)) {
+      if (v[k] === true) return normalizarStatus(k);
+    }
+
+    if (v.status) return normalizarStatus(v.status);
+    if (v.valor) return normalizarStatus(v.valor);
+  }
+
+  return String(v).toUpperCase().trim();
+}
+
+function isManut(v) {
+  const s = normalizarStatus(v);
+  return STATUS_MA.map(normalizarStatus).includes(s) || s.includes("MANUT");
+}
+
+function statusDetectado(v) {
+  if (typeof v === "object" && v) {
+    for (const k of Object.keys(v)) {
+      if (v[k] === true) return normalizarStatus(k);
+    }
+  }
+
+  return normalizarStatus(v);
+}
+
+function buscarManutencao(obj) {
+  const out = [];
+
+  function walk(node, path = []) {
+    if (!node || typeof node !== "object") return;
+
+    for (const [k, v] of Object.entries(node)) {
       const pk = path.concat(k);
       const key = String(k).toUpperCase();
-      if((key.startsWith("STATUS") || key === "MA" || key === "MAN") && isManut(v)){
-        const tag = pk.map(x=>String(x)).find(x=>/^[A-Z]{3}\d{3}$/i.test(x)) || String(k).replace(/^status[_-]?/i,"");
-        out.push({tag:tag.toUpperCase(),status:statusDetectado(v),local:path.slice(-2).join(" / ")});
+
+      if ((key.startsWith("STATUS") || key === "MA" || key === "MAN") && isManut(v)) {
+        const tag =
+          pk.map(x => String(x)).find(x => /^[A-Z]{2,5}\d{2,4}$/i.test(x)) ||
+          String(k).replace(/^status[_-]?/i, "");
+
+        out.push({
+          tag: String(tag).toUpperCase(),
+          status: statusDetectado(v),
+          local: path.slice(-2).join(" / ")
+        });
       }
-      if(typeof v === "object") walk(v,pk);
-      else if(/^[A-Z]{3}\d{3}$/i.test(k) && isManut(v)) out.push({tag:k.toUpperCase(),status:statusDetectado(v),local:path.slice(-2).join(" / ")});
+
+      if (typeof v === "object") {
+        walk(v, pk);
+      } else if (/^[A-Z]{2,5}\d{2,4}$/i.test(k) && isManut(v)) {
+        out.push({
+          tag: String(k).toUpperCase(),
+          status: statusDetectado(v),
+          local: path.slice(-2).join(" / ")
+        });
+      }
     }
   }
+
   walk(obj?.dados || obj || {});
+
   const dedup = new Map();
-  for(const item of out) dedup.set(item.tag + "|" + item.local, item);
+  for (const item of out) {
+    dedup.set(item.tag + "|" + item.local, item);
+  }
+
   return [...dedup.values()];
 }
-function coletarAnotacoes(obj){
-  const arr=[];
-  function walk(node,path=[]){
-    if(!node || typeof node !== "object") return;
-    for(const [k,v] of Object.entries(node)){
+
+function coletarAnotacoes(obj) {
+  const arr = [];
+
+  function walk(node) {
+    if (!node || typeof node !== "object") return;
+
+    for (const [k, v] of Object.entries(node)) {
       const lk = String(k).toLowerCase();
-      if(lk.includes("anot") || lk.includes("observ")){
-        if(Array.isArray(v)) arr.push(...v.filter(Boolean).map(String));
-        else if(typeof v === "string" && v.trim()) arr.push(v.trim());
+
+      if (lk.includes("anot") || lk.includes("observ")) {
+        if (Array.isArray(v)) {
+          arr.push(...v.filter(Boolean).map(String));
+        } else if (typeof v === "string" && v.trim()) {
+          arr.push(v.trim());
+        }
       }
-      if(typeof v === "object") walk(v,path.concat(k));
+
+      if (typeof v === "object") {
+        walk(v);
+      }
     }
   }
+
   walk(obj);
+
   return [...new Set(arr)];
 }
-function corrigir(obj){
+
+function corrigirBase(obj) {
   obj = obj && typeof obj === "object" ? obj : {};
+
   obj.origem = obj.origem || "GPT_FOPEIII";
   obj.versao_schema = obj.versao_schema || "1.1";
   obj.gerado_em = obj.gerado_em || new Date().toISOString();
-  obj.action = obj.action || "register";
-  obj.dry_run = $("dryRun").value === "true";
+  obj.action = "register";
+
   obj.formulario = String(obj.formulario || obj.tipo_formulario || "").toUpperCase().trim();
   obj.operador = String(obj.operador || obj.nome_operador || "").trim();
   obj.data = obj.data || obj.data_inspecao || "";
   obj.horario_inicial = obj.horario_inicial || obj.hora_inicial || obj.inicio || "";
   obj.horario_final = obj.horario_final || obj.hora_final || obj.final || "";
   obj.turno = String(obj.turno || "").toUpperCase().trim();
-  obj.email_destino = $("emailDestino").value.trim() || obj.email_destino || "";
   obj.dados = obj.dados || {};
+  obj.alertas = Array.isArray(obj.alertas) ? obj.alertas : [];
+
+  atualizarResumo(obj);
+
+  return obj;
+}
+
+function atualizarResumo(obj) {
   const manut = buscarManutencao(obj);
   const anot = coletarAnotacoes(obj);
+
   obj.resumo = obj.resumo || {};
   obj.resumo.total_manutencao = manut.length;
   obj.resumo.equipamentos_manutencao = manut;
   obj.resumo.anotacoes = anot;
+
   const pend = [];
-  if(!["AAA001","AAA002"].includes(obj.formulario)) pend.push("Formulário ausente ou inválido. Use AAA001 ou AAA002.");
-  if(!obj.operador) pend.push("Operador ausente.");
-  if(!obj.data) pend.push("Data ausente.");
-  if(!obj.horario_inicial) pend.push("Horário inicial ausente.");
-  if(!obj.horario_final) pend.push("Horário final ausente.");
+
+  if (!["AAA001", "AAA002"].includes(obj.formulario)) {
+    pend.push("Formulário ausente ou inválido. Use AAA001 ou AAA002.");
+  }
+
+  if (!obj.operador) pend.push("Operador ausente.");
+  if (!obj.data) pend.push("Data ausente.");
+  if (!obj.horario_inicial) pend.push("Horário inicial ausente.");
+  if (!obj.horario_final) pend.push("Horário final ausente.");
+
   obj.validacao = obj.validacao || {};
   obj.validacao.pendencias = pend;
   obj.validacao.pronto_para_importar = pend.length === 0;
-  return obj;
 }
-function preencherEdicao(obj){
-  $("editFormulario").value = obj.formulario || "";
-  $("editOperador").value = obj.operador || "";
-  $("editData").value = obj.data || "";
-  $("editIni").value = obj.horario_inicial || "";
-  $("editFim").value = obj.horario_final || "";
-}
-function render(obj){
+
+function renderResumo(obj) {
   const pronto = obj?.validacao?.pronto_para_importar;
-  $("resumo").innerHTML = `
-    <div class="k">Status</div><div>${pronto?'<span class="badge okb">Pronto para envio</span>':'<span class="badge badb">Corrigir pendências</span>'}</div>
-    <div class="k">Formulário</div><div>${esc(obj.formulario || "-")}</div>
-    <div class="k">Operador</div><div>${esc(obj.operador || "-")}</div>
-    <div class="k">Data</div><div>${esc(obj.data || "-")}</div>
-    <div class="k">Horário</div><div>${esc(obj.horario_inicial || "-")} até ${esc(obj.horario_final || "-")}</div>
-    <div class="k">Turno</div><div>${esc(obj.turno || "-")}</div>
-    <div class="k">Total MAN</div><div><b>${esc(obj.resumo?.total_manutencao ?? 0)}</b></div>`;
+
+  $("summary").innerHTML = `
+    <div class="k">Status</div>
+    <div>${pronto ? '<span class="badge okb">Pronto para envio</span>' : '<span class="badge badb">Corrigir pendências</span>'}</div>
+
+    <div class="k">Formulário</div>
+    <div>${esc(obj.formulario || "-")}</div>
+
+    <div class="k">Operador</div>
+    <div>${esc(obj.operador || "-")}</div>
+
+    <div class="k">Data</div>
+    <div>${esc(obj.data || "-")}</div>
+
+    <div class="k">Horário</div>
+    <div>${esc(obj.horario_inicial || "-")} → ${esc(obj.horario_final || "-")}</div>
+
+    <div class="k">Turno</div>
+    <div>${esc(obj.turno || "-")}</div>
+
+    <div class="k">Total manutenção</div>
+    <div><strong>${esc(obj.resumo?.total_manutencao ?? 0)}</strong></div>
+  `;
+
   const manut = obj.resumo?.equipamentos_manutencao || [];
-  $("manutencao").innerHTML = manut.length ? `<table><thead><tr><th>TAG</th><th>Status</th><th>Origem</th></tr></thead><tbody>${manut.map(x=>`<tr><td><b>${esc(x.tag)}</b></td><td>${esc(x.status)}</td><td>${esc(x.local||"-")}</td></tr>`).join("")}</tbody></table>` : `<span class="badge okb">Nenhum equipamento em manutenção detectado</span>`;
+
+  $("manutencao").innerHTML = manut.length
+    ? `
+      <table>
+        <thead>
+          <tr>
+            <th>Equipamento</th>
+            <th>Área / contexto</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${manut.map(m => `
+            <tr>
+              <td><strong>${esc(m.tag || m.equipamento || "-")}</strong></td>
+              <td>${esc(m.local || m.contexto || "-")}</td>
+              <td><span class="badge badb">${esc(m.status || "MAN")}</span></td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    `
+    : '<span class="badge okb">Nenhum equipamento em manutenção identificado.</span>';
+
   const anot = obj.resumo?.anotacoes || [];
-  $("anotacoes").textContent = anot.length ? anot.map((x,i)=>`${i+1}. ${x}`).join("\n") : "-";
+  $("anotacoes").textContent = anot.length ? anot.map(a => "- " + a).join("\n") : "-";
+
   const pend = obj.validacao?.pendencias || [];
-  $("pendencias").textContent = pend.length ? pend.map((x,i)=>`${i+1}. ${x}`).join("\n") : "Sem pendências obrigatórias.";
+  $("pendencias").textContent = pend.length ? pend.map(p => "- " + p).join("\n") : "Sem pendências.";
+
+  $("btnSend").disabled = !pronto;
 }
-function validar(){
-  try{
-    currentJson = corrigir(tentarParse($("jsonInput").value));
-    $("jsonInput").value = JSON.stringify(currentJson,null,2);
-    preencherEdicao(currentJson);
-    render(currentJson);
-    setMsg("msg", currentJson.validacao.pronto_para_importar ? "ok" : "warn", currentJson.validacao.pronto_para_importar ? "JSON validado e corrigido automaticamente." : "JSON validado, mas existem pendências para corrigir antes do envio.");
-    return currentJson;
-  }catch(e){
-    currentJson = null;
-    setMsg("msg","err","Erro ao ler JSON: " + e.message);
-    return null;
+
+function tipoValor(v) {
+  if (typeof v === "boolean") return "boolean";
+  if (typeof v === "number") return "number";
+  return "text";
+}
+
+function getByPath(obj, path) {
+  return path.reduce((acc, key) => acc?.[key], obj);
+}
+
+function setByPath(obj, path, value) {
+  let ref = obj;
+
+  for (let i = 0; i < path.length - 1; i++) {
+    ref = ref[path[i]];
+  }
+
+  const last = path[path.length - 1];
+  const atual = ref[last];
+
+  if (typeof atual === "boolean") {
+    ref[last] = value === "true";
+  } else if (typeof atual === "number") {
+    const n = Number(value);
+    ref[last] = Number.isNaN(n) ? value : n;
+  } else {
+    ref[last] = value;
   }
 }
-function aplicarEdits(){
-  if(!currentJson) currentJson = validar();
-  if(!currentJson) return;
-  currentJson.formulario = $("editFormulario").value.toUpperCase().trim();
-  currentJson.operador = $("editOperador").value.trim();
-  currentJson.data = $("editData").value.trim();
-  currentJson.horario_inicial = $("editIni").value.trim();
-  currentJson.horario_final = $("editFim").value.trim();
-  currentJson = corrigir(currentJson);
-  $("jsonInput").value = JSON.stringify(currentJson,null,2);
-  preencherEdicao(currentJson);
-  render(currentJson);
-  setMsg("msg","ok","Correções aplicadas no JSON.");
+
+function renderEditor(obj) {
+  const editor = $("editor");
+  editor.innerHTML = "";
+
+  function criarCampo(path, value) {
+    const div = document.createElement("div");
+    div.className = "field";
+
+    const small = document.createElement("small");
+    small.textContent = path.join(".");
+    div.appendChild(small);
+
+    const row = document.createElement("div");
+    row.className = "field-row";
+
+    let input;
+
+    if (typeof value === "boolean") {
+      input = document.createElement("select");
+
+      const optTrue = document.createElement("option");
+      optTrue.value = "true";
+      optTrue.textContent = "true";
+
+      const optFalse = document.createElement("option");
+      optFalse.value = "false";
+      optFalse.textContent = "false";
+
+      input.appendChild(optTrue);
+      input.appendChild(optFalse);
+      input.value = String(value);
+    } else {
+      input = document.createElement("input");
+      input.type = tipoValor(value);
+      input.value = value ?? "";
+    }
+
+    input.addEventListener("input", () => {
+      setByPath(currentJson, path, input.value);
+      atualizarResumo(currentJson);
+      $("jsonInput").value = JSON.stringify(currentJson, null, 2);
+      renderResumo(currentJson);
+    });
+
+    row.appendChild(input);
+
+    const type = document.createElement("span");
+    type.className = "badge warnb";
+    type.textContent = Array.isArray(getByPath(currentJson, path)) ? "array" : typeof value;
+
+    row.appendChild(type);
+    div.appendChild(row);
+
+    editor.appendChild(div);
+  }
+
+  function walk(node, path = []) {
+    if (node === null || node === undefined) {
+      criarCampo(path, "");
+      return;
+    }
+
+    if (typeof node !== "object") {
+      criarCampo(path, node);
+      return;
+    }
+
+    if (path.length > 0) {
+      const section = document.createElement("div");
+      section.className = "section-title";
+      section.textContent = path.join(".");
+      editor.appendChild(section);
+    }
+
+    for (const [k, v] of Object.entries(node)) {
+      walk(v, path.concat(k));
+    }
+  }
+
+  walk(obj);
 }
-function enviar(){
-  const obj = validar();
-  if(!obj) return;
-  if(!obj.validacao.pronto_para_importar){
-    setMsg("sendMsg","err","Corrija as pendências antes de enviar.");
+
+function validarJson() {
+  clearMsg("msg");
+  clearMsg("sendMsg");
+
+  try {
+    const obj = tentarParse($("jsonInput").value);
+    currentJson = corrigirBase(obj);
+
+    $("jsonInput").value = JSON.stringify(currentJson, null, 2);
+
+    renderResumo(currentJson);
+    renderEditor(currentJson);
+
+    if (currentJson.validacao.pronto_para_importar) {
+      setMsg("msg", "ok", "JSON validado. Confira os dados editáveis antes do envio.");
+    } else {
+      setMsg("msg", "warn", "JSON validado, porém existem pendências para corrigir.");
+    }
+
+  } catch (e) {
+    currentJson = null;
+    $("btnSend").disabled = true;
+    setMsg("msg", "err", "Erro ao ler JSON: " + e.message);
+  }
+}
+
+function baixarJson() {
+  if (!currentJson) {
+    validarJson();
+  }
+
+  if (!currentJson) return;
+
+  atualizarResumo(currentJson);
+
+  const blob = new Blob([JSON.stringify(currentJson, null, 2)], {
+    type: "application/json;charset=utf-8"
+  });
+
+  const nome = `FOPEIII_${currentJson.formulario || "CHECKLIST"}_${(currentJson.data || "").replaceAll("/", "-") || "sem-data"}.json`;
+
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = nome;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(a.href);
+}
+
+async function enviarJson() {
+  clearMsg("sendMsg");
+
+  if (!currentJson) {
+    validarJson();
+  }
+
+  if (!currentJson) return;
+
+  atualizarResumo(currentJson);
+
+  if (!currentJson.validacao.pronto_para_importar) {
+    renderResumo(currentJson);
+    setMsg("sendMsg", "err", "Corrija as pendências antes de enviar.");
     return;
   }
-  const endpoint = $("endpoint").value.trim() || DEFAULT_ENDPOINT;
-  const form = document.createElement("form");
-  form.method = "POST";
-  form.action = endpoint;
-  form.target = "_blank";
-  const payload = document.createElement("input");
-  payload.type = "hidden";
-  payload.name = "payload";
-  payload.value = JSON.stringify(obj);
-  form.appendChild(payload);
-  document.body.appendChild(form);
-  form.submit();
-  form.remove();
-  setMsg("sendMsg","ok","JSON enviado em nova aba. Confira o retorno do Apps Script.");
+
+  if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes("COLE_AQUI")) {
+    setMsg("sendMsg", "err", "Configure a constante APPS_SCRIPT_URL no HTML com a URL /exec do Apps Script.");
+    return;
+  }
+
+  $("btnSend").disabled = true;
+  setMsg("sendMsg", "warn", "Enviando JSON para registro...");
+
+  try {
+    await fetch(APPS_SCRIPT_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: {
+        "Content-Type": "text/plain;charset=utf-8"
+      },
+      body: JSON.stringify(currentJson)
+    });
+
+    setMsg("sendMsg", "ok", "JSON enviado para registro. Aguarde alguns instantes e confira a planilha, o Drive e o e-mail.");
+
+  } catch (e) {
+    setMsg("sendMsg", "err", "Falha no envio: " + e.message);
+  } finally {
+    $("btnSend").disabled = false;
+  }
 }
-$("dropArea").onclick=()=>$("fileInput").click();
-$("dropArea").ondragover=e=>{e.preventDefault();$("dropArea").classList.add("drag")};
-$("dropArea").ondragleave=()=>$("dropArea").classList.remove("drag");
-$("dropArea").ondrop=e=>{e.preventDefault();$("dropArea").classList.remove("drag");const f=e.dataTransfer.files[0];if(f) lerArquivo(f)};
-$("fileInput").onchange=e=>{const f=e.target.files[0];if(f) lerArquivo(f)};
-function lerArquivo(f){const r=new FileReader();r.onload=()=>{$("jsonInput").value=r.result;validar()};r.readAsText(f,"utf-8")}
-$("btnExample").onclick=()=>{$("jsonInput").value=JSON.stringify(exemplo(),null,2);validar()};
-$("btnValidate").onclick=validar;
-$("btnApplyEdits").onclick=aplicarEdits;
-$("btnClear").onclick=()=>{currentJson=null;$("jsonInput").value="";$("resumo").innerHTML='<div class="k">Status</div><div>Aguardando JSON.</div>';$("manutencao").innerHTML='<span class="badge warnb">Aguardando validação</span>';$("anotacoes").textContent="-";$("pendencias").textContent="-";["msg","sendMsg"].forEach(clearMsg)};
-$("btnDownload").onclick=()=>{const obj=validar();if(!obj)return;const blob=new Blob([JSON.stringify(obj,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`FOPEIII_${obj.formulario||"JSON"}_${(obj.data||"").replaceAll("/","-")||"corrigido"}.json`;a.click();URL.revokeObjectURL(a.href)};
-$("btnPing").onclick=()=>{const endpoint=$("endpoint").value.trim()||DEFAULT_ENDPOINT;window.open(endpoint+"?ping=1","_blank");setMsg("sendMsg","warn","Endpoint aberto em nova aba para teste GET.")};
-$("btnOpenExec").onclick=()=>window.open($("endpoint").value.trim()||DEFAULT_ENDPOINT,"_blank");
-$("btnSend").onclick=enviar;
+
+function limpar() {
+  currentJson = null;
+  $("jsonInput").value = "";
+  $("editor").innerHTML = '<span class="badge warnb">Valide o JSON para liberar os campos editáveis.</span>';
+  $("summary").innerHTML = '<div class="k">Status</div><div>Aguardando JSON.</div>';
+  $("manutencao").innerHTML = '<span class="badge warnb">Aguardando validação</span>';
+  $("anotacoes").textContent = "-";
+  $("pendencias").textContent = "-";
+  $("btnSend").disabled = true;
+  clearMsg("msg");
+  clearMsg("sendMsg");
+}
+
+$("btnValidate").addEventListener("click", validarJson);
+$("btnDownload").addEventListener("click", baixarJson);
+$("btnClear").addEventListener("click", limpar);
+$("btnSend").addEventListener("click", enviarJson);
+
+$("dropArea").addEventListener("click", () => $("fileInput").click());
+
+$("fileInput").addEventListener("change", async e => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  $("jsonInput").value = await file.text();
+  validarJson();
+});
+
+$("dropArea").addEventListener("dragover", e => {
+  e.preventDefault();
+  $("dropArea").classList.add("drag");
+});
+
+$("dropArea").addEventListener("dragleave", () => {
+  $("dropArea").classList.remove("drag");
+});
+
+$("dropArea").addEventListener("drop", async e => {
+  e.preventDefault();
+  $("dropArea").classList.remove("drag");
+
+  const file = e.dataTransfer.files[0];
+  if (!file) return;
+
+  $("jsonInput").value = await file.text();
+  validarJson();
+});
 </script>
+
 </body>
 </html>
