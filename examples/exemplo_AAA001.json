@@ -1,0 +1,44 @@
+{
+  "origem": "GPT_FOPEIII",
+  "versao_schema": "1.0",
+  "gerado_em": "2026-05-14T04:30:00-03:00",
+  "action": "register",
+  "dry_run": true,
+  "formulario": "AAA001",
+  "operador": "Operador Teste",
+  "turma": "B",
+  "supervisor": "",
+  "data": "14/05/2026",
+  "horario_inicial": "07:00",
+  "horario_final": "19:00",
+  "turno": "DIA",
+  "email_destino": "",
+  "dados": {
+    "bomba_diesel": {
+      "status_BLE903": "MAN"
+    },
+    "separadoras_hfo": {
+      "BJJ904": {
+        "status": {
+          "MA": true
+        }
+      }
+    },
+    "anotacoes_p1": [
+      "Teste de integração via JSON importado no GitHub Pages."
+    ],
+    "anotacoes_p2": [],
+    "campos_nao_identificados": []
+  },
+  "alertas": [],
+  "resumo": {
+    "total_manutencao": 0,
+    "equipamentos_manutencao": [],
+    "anotacoes": []
+  },
+  "validacao": {
+    "pronto_para_importar": true,
+    "pendencias": [],
+    "observacoes": []
+  }
+}
