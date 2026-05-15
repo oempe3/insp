@@ -1,1027 +1,1560 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>FOPE III · Envio de JSON</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FOPE III · Checklist Operacional</title>
+<style>
+:root{
+  --navy:#071F3A; --navy-2:#0B2D55; --blue:#1565C0; --blue-2:#1976D2;
+  --blue-soft:#EAF3FF; --blue-xsoft:#F5FAFF;
+  --teal:#00796B; --teal-soft:#E0F2F1;
+  --green:#2E7D32; --green-soft:#E8F5E9;
+  --amber:#EF6C00; --amber-soft:#FFF3E0;
+  --red:#C62828; --red-soft:#FFEBEE;
+  --ink:#111827; --muted:#667085;
+  --line:#d7dde5; --line-2:#e6eaed; --bg:#eef2f6; --card:#ffffff;
+  --r-sm:6px; --r-md:10px; --r-lg:16px;
+  --shadow:0 10px 30px rgba(7,31,58,.08);
+  --shadow-sm:0 2px 8px rgba(7,31,58,.06);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:Inter,'Segoe UI',Arial,sans-serif;
+  background:linear-gradient(135deg,#f7fafc 0%,#eef2f6 50%,#f0f4f8 100%);
+  color:var(--ink);font-size:14px;line-height:1.45;
+  padding-bottom:84px;
+}
 
-  <style>
-    :root {
-      --bg: #eef3f8;
-      --card: #ffffff;
-      --ink: #111827;
-      --muted: #667085;
-      --line: #d7e0ea;
-      --blue: #0b3d78;
-      --blue2: #155da8;
-      --green: #087443;
-      --green-bg: #dcfae6;
-      --red: #b42318;
-      --red-bg: #fee4e2;
-      --amber: #b54708;
-      --amber-bg: #fff4d6;
-      --shadow: 0 18px 42px rgba(16, 32, 51, .10);
-    }
+/* ─── TOP BAR ─── */
+.topbar{
+  position:sticky;top:0;z-index:50;
+  background:linear-gradient(135deg,var(--navy) 0%,var(--blue-2) 100%);
+  color:#fff;padding:14px 22px;
+  box-shadow:0 4px 18px rgba(7,31,58,.18);
+  display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
+}
+.brand{display:flex;align-items:center;gap:12px}
+.brand-mark{
+  width:38px;height:38px;border-radius:10px;
+  background:rgba(255,255,255,.14);
+  display:grid;place-items:center;font-weight:900;font-size:13px;letter-spacing:-.5px;
+  border:1px solid rgba(255,255,255,.22);
+}
+.brand-title{font-size:17px;font-weight:900;letter-spacing:-.3px;line-height:1}
+.brand-sub{font-size:11px;opacity:.78;font-weight:700;margin-top:2px;letter-spacing:.4px;text-transform:uppercase}
 
-    * {
-      box-sizing: border-box;
-    }
+.form-switch{display:flex;gap:6px;background:rgba(0,0,0,.18);padding:5px;border-radius:12px}
+.form-switch button{
+  background:transparent;border:0;color:#fff;
+  padding:9px 16px;border-radius:9px;font-weight:800;font-size:12.5px;
+  cursor:pointer;letter-spacing:.3px;transition:.15s ease;
+}
+.form-switch button:hover{background:rgba(255,255,255,.08)}
+.form-switch button.active{background:#fff;color:var(--navy);box-shadow:0 2px 6px rgba(0,0,0,.18)}
+.form-switch .desc{display:block;font-size:9.5px;font-weight:700;opacity:.7;margin-top:2px;letter-spacing:.4px;text-transform:uppercase}
+.form-switch button.active .desc{opacity:.7}
 
-    body {
-      margin: 0;
-      font-family: Inter, Segoe UI, Arial, sans-serif;
-      background: linear-gradient(135deg, #f8fbff, #edf4fb 45%, #f4fbf7);
-      color: var(--ink);
-    }
+/* ─── LAYOUT ─── */
+.shell{max-width:1320px;margin:0 auto;padding:18px 22px 22px;display:grid;grid-template-columns:1fr 340px;gap:18px}
+@media(max-width:1080px){.shell{grid-template-columns:1fr}}
 
-    .shell {
-      max-width: 1180px;
-      margin: 0 auto;
-      padding: 22px;
-    }
+/* ─── CARDS / SECTIONS ─── */
+.card{
+  background:var(--card);border:1px solid var(--line);
+  border-radius:var(--r-lg);box-shadow:var(--shadow-sm);
+  overflow:hidden;margin-bottom:14px;
+}
+.card-head{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:12px 16px;background:linear-gradient(90deg,var(--navy) 0%,var(--blue-2) 100%);color:#fff;
+}
+.card-head h2{font-size:14px;font-weight:900;letter-spacing:.1px;display:flex;align-items:center;gap:10px}
+.card-head h2::before{
+  content:"";width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.72)
+}
+.card-head .badge-num{
+  font-size:11px;font-weight:900;padding:3px 9px;border-radius:999px;
+  background:rgba(255,255,255,.15);letter-spacing:.4px
+}
+.card-head.green{background:linear-gradient(90deg,#00574F 0%,var(--teal) 100%)}
+.card-head.amber{background:linear-gradient(90deg,#BF4E00 0%,var(--amber) 100%)}
+.card-head.gray{background:linear-gradient(90deg,#263746 0%,#607D8B 100%)}
+.card-body{padding:14px 16px}
 
-    .hero {
-      background: rgba(255, 255, 255, .96);
-      border: 1px solid rgba(11, 61, 120, .16);
-      border-radius: 26px;
-      box-shadow: var(--shadow);
-      overflow: hidden;
-      margin-bottom: 18px;
-    }
+.sub-sec{
+  margin:14px 0 8px;padding:7px 10px;
+  border-left:3px solid var(--blue);background:var(--blue-xsoft);
+  color:var(--navy-2);font-size:12.5px;font-weight:900;border-radius:0 6px 6px 0;
+}
+.sub-sec:first-child{margin-top:0}
+.note{
+  margin:6px 0 10px;padding:7px 10px;
+  border-left:3px solid var(--amber);background:var(--amber-soft);
+  color:#7a3a00;font-size:11.5px;font-weight:700;font-style:italic;border-radius:0 6px 6px 0;
+}
 
-    .hero-top {
-      padding: 24px 26px;
-      background: linear-gradient(120deg, #fff, #f5faff 60%, #effaf4);
-      display: flex;
-      justify-content: space-between;
-      gap: 18px;
-      align-items: center;
-    }
+/* ─── IDENT (header form) ─── */
+.ident-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+@media(max-width:980px){.ident-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:560px){.ident-grid{grid-template-columns:repeat(2,1fr)}}
+.legend-bar{
+  margin-top:12px;padding:8px 12px;border:1px solid var(--line);
+  border-radius:8px;background:var(--blue-xsoft);
+  font-size:11.5px;color:#374151;line-height:1.6;
+}
+.legend-bar b{color:var(--blue);font-weight:900}
 
-    h1 {
-      margin: 0;
-      color: var(--blue);
-      font-size: 29px;
-      letter-spacing: -.6px;
-    }
+/* ─── FIELDS ─── */
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{
+  font-size:10.5px;font-weight:900;color:#475467;
+  text-transform:uppercase;letter-spacing:.5px;
+}
+.field input[type=text],.field input[type=number],.field input[type=date],
+.field input[type=time],.field select,.field textarea{
+  width:100%;padding:8px 10px;
+  border:1px solid var(--line);border-radius:8px;
+  background:#fff;color:var(--ink);font:600 13px Inter,sans-serif;
+  transition:.15s ease;outline:none;
+}
+.field input:focus,.field select:focus,.field textarea:focus{
+  border-color:var(--blue);box-shadow:0 0 0 3px rgba(21,101,192,.15);
+}
+.field textarea{min-height:80px;resize:vertical;font-family:Inter,sans-serif}
 
-    .hero p {
-      margin: 8px 0 0;
-      color: var(--muted);
-      font-weight: 700;
-    }
+/* ─── CHIP GROUP (status / nível radios) ─── */
+.chips{display:inline-flex;flex-wrap:wrap;gap:3px;
+  padding:3px;background:#f3f6fa;border:1px solid var(--line);border-radius:8px}
+.chips input{position:absolute;opacity:0;pointer-events:none}
+.chip{
+  font:800 10.5px Inter,sans-serif;padding:5px 9px;border-radius:6px;
+  cursor:pointer;letter-spacing:.4px;color:#475467;background:transparent;
+  transition:.12s ease;border:1px solid transparent;user-select:none;
+}
+.chip:hover{background:rgba(0,0,0,.04)}
+.chips input:checked+.chip{background:#fff;border-color:var(--line);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.chips.t-op input:checked+.chip[data-v="OP"]{background:var(--green-soft);color:var(--green);border-color:#a8d4a8}
+.chips.t-op input:checked+.chip[data-v="SB"]{background:var(--blue-soft);color:var(--blue);border-color:#9cc3eb}
+.chips.t-op input:checked+.chip[data-v="MA"]{background:var(--red-soft);color:var(--red);border-color:#e6a6a6}
+.chips.t-da input:checked+.chip{background:#fff;color:var(--ink)}
+.chips.t-da input:checked+.chip[data-v="AUTO"]{background:var(--teal-soft);color:var(--teal);border-color:#9ed4cd}
+.chips.t-da input:checked+.chip[data-v="MAN"]{background:var(--amber-soft);color:var(--amber);border-color:#ebbb86}
+.chips.t-mx input:checked+.chip[data-v="MN"]{background:var(--amber-soft);color:var(--amber);border-color:#ebbb86}
+.chips.t-mx input:checked+.chip[data-v="MX"]{background:var(--blue-soft);color:var(--blue);border-color:#9cc3eb}
+.chips.t-mx input:checked+.chip[data-v="OPC"]{background:var(--green-soft);color:var(--green);border-color:#a8d4a8}
+.chips.t-bool input:checked+.chip[data-v="true"]{background:var(--green-soft);color:var(--green);border-color:#a8d4a8}
+.chips.t-bool input:checked+.chip[data-v="false"]{background:var(--red-soft);color:var(--red);border-color:#e6a6a6}
+.chips.t-sn input:checked+.chip[data-v="SIM"]{background:var(--green-soft);color:var(--green);border-color:#a8d4a8}
+.chips.t-sn input:checked+.chip[data-v="NÃO"]{background:var(--red-soft);color:var(--red);border-color:#e6a6a6}
+.chips.t-vl input:checked+.chip[data-v="ABERTA"]{background:var(--green-soft);color:var(--green);border-color:#a8d4a8}
+.chips.t-vl input:checked+.chip[data-v="FECHADA"]{background:var(--red-soft);color:var(--red);border-color:#e6a6a6}
+.chips.t-uok input:checked+.chip[data-v="OK"]{background:var(--green-soft);color:var(--green);border-color:#a8d4a8}
+.chips.t-uok input:checked+.chip[data-v="FALHA"]{background:var(--red-soft);color:var(--red);border-color:#e6a6a6}
 
-    .pill {
-      display: inline-flex;
-      border-radius: 999px;
-      background: #eef6ff;
-      color: var(--blue);
-      padding: 9px 12px;
-      font-weight: 900;
-      font-size: 12px;
-      white-space: nowrap;
-    }
+/* ─── TABELAS ─── */
+.tbl-wrap{overflow-x:auto;margin:0 -16px;padding:0 16px}
+table.eq{
+  width:100%;border-collapse:separate;border-spacing:0;
+  background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden;
+}
+table.eq th{
+  padding:8px 10px;background:var(--blue-soft);color:var(--navy);
+  font:900 11px Inter,sans-serif;text-align:left;
+  border-bottom:1px solid var(--line);text-transform:uppercase;letter-spacing:.4px;
+}
+table.eq td{
+  padding:6px 8px;border-bottom:1px solid var(--line-2);font-size:12.5px;vertical-align:middle;
+}
+table.eq tr:last-child td{border-bottom:0}
+table.eq tr:nth-child(even) td{background:#fafbfc}
+table.eq td.row-label{font-weight:900;color:var(--navy);white-space:nowrap;background:#f6f8fb !important}
+table.eq input[type=text],table.eq input[type=number]{
+  width:100%;min-width:64px;padding:5px 7px;border:1px solid var(--line);
+  border-radius:6px;background:#fff;font:700 12px Inter,sans-serif;
+}
+table.eq input:focus{border-color:var(--blue);outline:none;box-shadow:0 0 0 2px rgba(21,101,192,.12)}
 
-    .grid {
-      display: grid;
-      grid-template-columns: .9fr 1.1fr;
-      gap: 18px;
-    }
+/* ─── RESUMO LATERAL ─── */
+.aside{position:sticky;top:84px;align-self:start;max-height:calc(100vh - 100px);overflow-y:auto}
+.aside .card-head{background:linear-gradient(90deg,#0f172a 0%,#1e293b 100%)}
+.stat{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 12px;border-bottom:1px solid var(--line-2);
+}
+.stat:last-child{border-bottom:0}
+.stat-k{font-size:11px;font-weight:800;text-transform:uppercase;color:#475467;letter-spacing:.4px}
+.stat-v{font-size:13px;font-weight:900;color:var(--navy)}
+.stat-v.ok{color:var(--green)}
+.stat-v.warn{color:var(--amber)}
+.stat-v.err{color:var(--red)}
+.pill{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:3px 9px;border-radius:999px;font-size:10.5px;font-weight:900;letter-spacing:.4px;
+}
+.pill.ok{background:var(--green-soft);color:var(--green)}
+.pill.warn{background:var(--amber-soft);color:var(--amber)}
+.pill.err{background:var(--red-soft);color:var(--red)}
+.pill.info{background:var(--blue-soft);color:var(--blue)}
 
-    .card {
-      background: rgba(255, 255, 255, .98);
-      border: 1px solid var(--line);
-      border-radius: 24px;
-      box-shadow: 0 12px 30px rgba(16, 32, 51, .08);
-      padding: 18px;
-    }
+.manut-list{padding:10px 12px}
+.manut-item{
+  display:flex;justify-content:space-between;align-items:center;gap:8px;
+  padding:6px 0;border-bottom:1px dashed var(--line-2);font-size:12px;
+}
+.manut-item:last-child{border-bottom:0}
+.manut-tag{font-weight:900;color:var(--navy)}
+.manut-ctx{color:#667085;font-size:11px;font-weight:700;text-align:right}
 
-    h2 {
-      font-size: 18px;
-      margin: 0 0 12px;
-      color: var(--blue);
-    }
+/* ─── BOTTOM ACTION BAR ─── */
+.actionbar{
+  position:fixed;bottom:0;left:0;right:0;z-index:40;
+  background:rgba(255,255,255,.96);backdrop-filter:blur(8px);
+  border-top:1px solid var(--line);padding:12px 22px;
+  display:flex;gap:10px;align-items:center;justify-content:flex-end;flex-wrap:wrap;
+  box-shadow:0 -4px 18px rgba(7,31,58,.06);
+}
+.actionbar .left{margin-right:auto;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.btn{
+  border:0;border-radius:10px;padding:10px 16px;
+  font:900 12.5px Inter,sans-serif;cursor:pointer;letter-spacing:.3px;
+  display:inline-flex;align-items:center;gap:7px;transition:.15s ease;
+}
+.btn:hover{transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn.primary{background:linear-gradient(135deg,var(--navy),var(--blue-2));color:#fff;box-shadow:0 4px 12px rgba(21,101,192,.28)}
+.btn.success{background:linear-gradient(135deg,#0a7d3e,#11a85a);color:#fff;box-shadow:0 4px 12px rgba(11,168,90,.28)}
+.btn.ghost{background:transparent;color:var(--navy);border:1px solid var(--line)}
+.btn.ghost:hover{background:#f3f6fa}
+.btn.danger-ghost{background:transparent;color:var(--red);border:1px solid #e6a6a6}
 
-    .drop {
-      border: 2px dashed #9ab6d6;
-      border-radius: 20px;
-      background: #f8fbff;
-      padding: 18px;
-      text-align: center;
-      color: var(--muted);
-      font-weight: 900;
-      cursor: pointer;
-      margin-bottom: 12px;
-    }
+/* ─── TOAST ─── */
+.toast{
+  position:fixed;bottom:84px;left:50%;transform:translateX(-50%);z-index:80;
+  padding:12px 20px;border-radius:10px;font-weight:800;font-size:13px;
+  box-shadow:0 8px 24px rgba(0,0,0,.18);
+  opacity:0;pointer-events:none;transition:.25s ease;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(-4px)}
+.toast.ok{background:var(--green-soft);color:var(--green);border:1px solid #a8d4a8}
+.toast.warn{background:var(--amber-soft);color:var(--amber);border:1px solid #ebbb86}
+.toast.err{background:var(--red-soft);color:var(--red);border:1px solid #e6a6a6}
 
-    .drop.drag {
-      border-color: var(--blue2);
-      background: #eef6ff;
-    }
+/* ─── IMPORT MODAL ─── */
+.modal-overlay{
+  position:fixed;inset:0;z-index:90;
+  background:rgba(7,31,58,.55);display:none;align-items:center;justify-content:center;padding:20px;
+}
+.modal-overlay.show{display:flex}
+.modal{
+  background:#fff;border-radius:16px;max-width:600px;width:100%;max-height:80vh;
+  display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3);
+}
+.modal-head{padding:16px 20px;background:var(--navy);color:#fff;display:flex;justify-content:space-between;align-items:center}
+.modal-head h3{font-size:15px;font-weight:900}
+.modal-head button{background:transparent;border:0;color:#fff;font-size:22px;cursor:pointer;padding:0;line-height:1}
+.modal-body{padding:18px 20px;overflow-y:auto}
+.drop{
+  border:2px dashed #9ab6d6;border-radius:12px;background:var(--blue-xsoft);
+  padding:24px;text-align:center;color:var(--blue);font-weight:900;cursor:pointer;
+  transition:.15s ease;margin-bottom:12px;
+}
+.drop:hover,.drop.drag{border-color:var(--blue);background:var(--blue-soft)}
+.modal textarea{
+  width:100%;min-height:220px;padding:12px;
+  border:1px solid var(--line);border-radius:10px;
+  background:#0b1220;color:#d7eaff;
+  font:500 12px Consolas,Monaco,monospace;line-height:1.5;resize:vertical;outline:none;
+}
+.modal-foot{padding:14px 20px;border-top:1px solid var(--line);display:flex;gap:10px;justify-content:flex-end}
 
-    textarea {
-      width: 100%;
-      min-height: 360px;
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 14px;
-      background: #0b1220;
-      color: #d7eaff;
-      font-family: Consolas, Monaco, monospace;
-      font-size: 12.5px;
-      line-height: 1.45;
-      resize: vertical;
-      outline: none;
-    }
-
-    .toolbar {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin: 12px 0;
-    }
-
-    button {
-      border: 0;
-      border-radius: 14px;
-      padding: 12px 15px;
-      font-weight: 900;
-      cursor: pointer;
-      display: inline-flex;
-      gap: 8px;
-      align-items: center;
-      justify-content: center;
-      transition: .12s ease;
-    }
-
-    button:hover {
-      transform: translateY(-1px);
-    }
-
-    button:disabled {
-      opacity: .5;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    .primary {
-      background: linear-gradient(135deg, var(--blue), var(--blue2));
-      color: #fff;
-    }
-
-    .green {
-      background: linear-gradient(135deg, #007a3d, #12a05c);
-      color: #fff;
-    }
-
-    .gray {
-      background: #e8eef5;
-      color: #19314d;
-    }
-
-    .outline {
-      background: #fff;
-      color: var(--blue);
-      border: 1px solid #b9cbe0;
-    }
-
-    .msg {
-      display: none;
-      margin-top: 12px;
-      padding: 12px 14px;
-      border-radius: 16px;
-      font-weight: 800;
-      white-space: pre-wrap;
-    }
-
-    .msg.ok {
-      display: block;
-      background: var(--green-bg);
-      color: var(--green);
-    }
-
-    .msg.err {
-      display: block;
-      background: var(--red-bg);
-      color: var(--red);
-    }
-
-    .msg.warn {
-      display: block;
-      background: var(--amber-bg);
-      color: var(--amber);
-    }
-
-    label {
-      display: block;
-      font-size: 12px;
-      font-weight: 900;
-      color: #344054;
-      margin-bottom: 6px;
-      text-transform: uppercase;
-      letter-spacing: .04em;
-    }
-
-    input,
-    select {
-      width: 100%;
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 11px 12px;
-      background: #fff;
-      color: var(--ink);
-      font-weight: 800;
-    }
-
-    .summary {
-      display: grid;
-      grid-template-columns: 160px 1fr;
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      overflow: hidden;
-      background: #fff;
-      margin-bottom: 16px;
-    }
-
-    .summary div {
-      padding: 10px 12px;
-      border-bottom: 1px solid var(--line);
-    }
-
-    .summary div:nth-last-child(-n+2) {
-      border-bottom: 0;
-    }
-
-    .summary .k {
-      background: #f5f8fb;
-      font-weight: 900;
-      color: #475467;
-      text-transform: uppercase;
-      font-size: 12px;
-    }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      border-radius: 999px;
-      padding: 6px 10px;
-      font-weight: 900;
-      font-size: 12px;
-    }
-
-    .okb {
-      background: var(--green-bg);
-      color: var(--green);
-    }
-
-    .badb {
-      background: var(--red-bg);
-      color: var(--red);
-    }
-
-    .warnb {
-      background: var(--amber-bg);
-      color: var(--amber);
-    }
-
-    .editor {
-      display: grid;
-      gap: 12px;
-      max-height: 650px;
-      overflow: auto;
-      padding-right: 4px;
-    }
-
-    .field {
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      padding: 12px;
-      background: #fbfdff;
-    }
-
-    .field small {
-      display: block;
-      color: var(--muted);
-      font-weight: 800;
-      margin-bottom: 6px;
-      word-break: break-word;
-    }
-
-    .field-row {
-      display: grid;
-      grid-template-columns: 1fr 140px;
-      gap: 8px;
-      align-items: center;
-    }
-
-    .section {
-      border: 1px solid #cbd8e6;
-      border-radius: 18px;
-      padding: 12px;
-      background: #ffffff;
-    }
-
-    .section-title {
-      font-size: 13px;
-      color: var(--blue);
-      font-weight: 900;
-      margin-bottom: 10px;
-      text-transform: uppercase;
-      letter-spacing: .03em;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: separate;
-      border-spacing: 0;
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      overflow: hidden;
-      background: #fff;
-      margin-bottom: 14px;
-    }
-
-    th,
-    td {
-      padding: 10px 12px;
-      border-bottom: 1px solid var(--line);
-      font-size: 13px;
-      text-align: left;
-      vertical-align: top;
-    }
-
-    th {
-      background: #f5f8fb;
-      color: #475467;
-      font-size: 12px;
-      text-transform: uppercase;
-    }
-
-    tr:last-child td {
-      border-bottom: 0;
-    }
-
-    .mini {
-      font-family: Consolas, Monaco, monospace;
-      font-size: 12px;
-      background: #f5f8fb;
-      border: 1px solid var(--line);
-      padding: 12px;
-      border-radius: 16px;
-      white-space: pre-wrap;
-      max-height: 200px;
-      overflow: auto;
-      margin-bottom: 14px;
-    }
-
-    .footer {
-      margin: 18px 0 6px;
-      text-align: center;
-      color: var(--muted);
-      font-size: 12px;
-    }
-
-    @media(max-width: 980px) {
-      .grid,
-      .hero-top {
-        display: block;
-      }
-
-      .pill {
-        margin-top: 12px;
-      }
-    }
-
-    @media(max-width: 620px) {
-      .shell {
-        padding: 12px;
-      }
-
-      .summary,
-      .field-row {
-        grid-template-columns: 1fr;
-      }
-
-      h1 {
-        font-size: 24px;
-      }
-    }
-  </style>
+.hide{display:none !important}
+</style>
 </head>
-
 <body>
-  <div class="shell">
 
-    <section class="hero">
-      <div class="hero-top">
-        <div>
-          <h1>FOPE III · Envio de JSON</h1>
-          <p>Cole ou importe o JSON gerado pelo GPT, edite os dados necessários e envie para registro.</p>
+<!-- ═══════════════════════════════════════════════════════════════
+     TOP BAR
+═══════════════════════════════════════════════════════════════ -->
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark">FIII</div>
+    <div>
+      <div class="brand-title">FOPE III · Checklist Operacional</div>
+      <div class="brand-sub">UTE Pernambuco III</div>
+    </div>
+  </div>
+  <div class="form-switch" role="tablist" aria-label="Tipo de formulário">
+    <button id="btn-aaa001" class="active" data-form="AAA001">
+      AAA001<span class="desc">Inspeção Externa</span>
+    </button>
+    <button id="btn-aaa002" data-form="AAA002">
+      AAA002<span class="desc">Inspeção Interna</span>
+    </button>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     MAIN
+═══════════════════════════════════════════════════════════════ -->
+<main class="shell">
+  <section id="form-host">
+
+    <!-- IDENTIFICAÇÃO (FIXO) -->
+    <div class="card" id="card-ident">
+      <div class="card-head"><h2>Identificação<span class="badge-num">01</span></h2></div>
+      <div class="card-body">
+        <div class="ident-grid">
+          <div class="field"><label>Operador</label><input type="text" data-bind="operador"></div>
+          <div class="field"><label>Turma</label><input type="text" data-bind="turma"></div>
+          <div class="field"><label>Data</label><input type="text" data-bind="data" placeholder="DD/MM/AAAA"></div>
+          <div class="field"><label>Supervisor</label><input type="text" data-bind="supervisor"></div>
+          <div class="field"><label>Hor. Inicial</label><input type="text" data-bind="horario_inicial" placeholder="HH:MM"></div>
+          <div class="field"><label>Hor. Final</label><input type="text" data-bind="horario_final" placeholder="HH:MM"></div>
+          <div class="field"><label>Turno</label>
+            <select data-bind="turno">
+              <option value="">—</option>
+              <option>Manhã</option><option>Tarde</option><option>Noite</option>
+            </select>
+          </div>
+          <div class="field"><label>E-mail destino</label><input type="text" data-bind="email_destino" placeholder="opcional"></div>
         </div>
-        <span class="pill">Sem senha · Sem teste · Sem nova janela</span>
+        <div class="legend-bar">
+          <b>OP</b> Operando · <b>SB</b> Stand by · <b>MA</b> Em manutenção ·
+          <b>MN</b> Mínimo · <b>MX</b> Máximo · <b>OPC</b> Operacional · <b>DES</b> Desligado
+        </div>
       </div>
-    </section>
-
-    <div class="grid">
-
-      <section class="card">
-        <h2>Entrada JSON</h2>
-
-        <div class="drop" id="dropArea">
-          Clique aqui ou arraste o arquivo .json
-        </div>
-
-        <input id="fileInput" type="file" accept=".json,application/json,text/plain" style="display:none">
-
-        <div class="toolbar">
-          <button class="primary" id="btnValidate">Validar e montar edição</button>
-          <button class="outline" id="btnDownload">Baixar JSON editado</button>
-          <button class="gray" id="btnClear">Limpar</button>
-        </div>
-
-        <textarea id="jsonInput" spellcheck="false" placeholder="Cole aqui o JSON gerado pelo GPT."></textarea>
-
-        <div id="msg" class="msg"></div>
-      </section>
-
-      <section class="card">
-        <h2>Resumo de conferência</h2>
-
-        <div id="summary" class="summary">
-          <div class="k">Status</div>
-          <div>Aguardando JSON.</div>
-        </div>
-
-        <h2>Equipamentos em manutenção</h2>
-        <div id="manutencao">
-          <span class="badge warnb">Aguardando validação</span>
-        </div>
-
-        <h2>Anotações</h2>
-        <div id="anotacoes" class="mini">-</div>
-
-        <h2>Pendências</h2>
-        <div id="pendencias" class="mini">-</div>
-
-        <div class="toolbar">
-          <button class="green" id="btnSend" disabled>Enviar para registro</button>
-        </div>
-
-        <div id="sendMsg" class="msg"></div>
-      </section>
-
     </div>
 
-    <section class="card" style="margin-top:18px">
-      <h2>Edição completa dos dados</h2>
-      <div id="editor" class="editor">
-        <span class="badge warnb">Valide o JSON para liberar os campos editáveis.</span>
+    <!-- SEÇÕES DO FORMULÁRIO (RENDERIZADAS POR JS) -->
+    <div id="sections"></div>
+
+    <!-- ANOTAÇÕES -->
+    <div class="card">
+      <div class="card-head gray"><h2>Anotações</h2></div>
+      <div class="card-body">
+        <div class="sub-sec">Anotações – Página 1</div>
+        <div class="field"><textarea data-bind="anotacoes_p1" placeholder="Uma anotação por linha..."></textarea></div>
+        <div class="sub-sec">Anotações – Página 2</div>
+        <div class="field"><textarea data-bind="anotacoes_p2" placeholder="Uma anotação por linha..."></textarea></div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <div class="footer">UTE Pernambuco III · FOPE III · Importação JSON operacional</div>
+  <!-- ASIDE (RESUMO) -->
+  <aside class="aside">
+    <div class="card">
+      <div class="card-head"><h2>Resumo</h2><span id="form-pill" class="badge-num">AAA001</span></div>
+      <div class="card-body" style="padding:0">
+        <div class="stat"><span class="stat-k">Status</span><span id="rs-status" class="pill warn">aguardando</span></div>
+        <div class="stat"><span class="stat-k">Formulário</span><span class="stat-v" id="rs-form">—</span></div>
+        <div class="stat"><span class="stat-k">Operador</span><span class="stat-v" id="rs-op">—</span></div>
+        <div class="stat"><span class="stat-k">Data</span><span class="stat-v" id="rs-data">—</span></div>
+        <div class="stat"><span class="stat-k">Turno</span><span class="stat-v" id="rs-turno">—</span></div>
+        <div class="stat"><span class="stat-k">Em manutenção</span><span class="stat-v err" id="rs-ma">0</span></div>
+        <div class="stat"><span class="stat-k">Em operação</span><span class="stat-v ok" id="rs-op-cnt">0</span></div>
+        <div class="stat"><span class="stat-k">Em stand-by</span><span class="stat-v" id="rs-sb">0</span></div>
+      </div>
+    </div>
 
+    <div class="card">
+      <div class="card-head amber"><h2>Equipamentos em manutenção</h2></div>
+      <div id="manut-list" class="manut-list">
+        <div class="manut-item"><span class="pill ok">Nenhum identificado.</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>Pendências de validação</h2></div>
+      <div id="pendencias-list" class="manut-list">
+        <div class="manut-item"><span class="pill info">aguardando preenchimento</span></div>
+      </div>
+    </div>
+  </aside>
+</main>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     ACTION BAR
+═══════════════════════════════════════════════════════════════ -->
+<div class="actionbar">
+  <div class="left">
+    <button class="btn ghost" id="btn-import">📂 Importar JSON</button>
+    <button class="btn ghost" id="btn-download">⬇ Baixar JSON</button>
+    <button class="btn ghost" id="btn-clear">🗑 Limpar</button>
+    <button class="btn ghost" id="btn-test">🧪 Carregar exemplo</button>
   </div>
+  <button class="btn primary" id="btn-validate">✔ Validar</button>
+  <button class="btn success" id="btn-send">🚀 Enviar para registro</button>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     IMPORT MODAL
+═══════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="import-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Importar JSON</h3>
+      <button id="btn-close-import">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="drop" id="drop-area">
+        <div style="font-size:24px;margin-bottom:6px">📁</div>
+        Clique ou arraste o arquivo <b>.json</b> aqui
+      </div>
+      <input type="file" id="file-input" accept=".json,application/json" style="display:none">
+      <textarea id="json-paste" placeholder='Ou cole o JSON aqui...'></textarea>
+    </div>
+    <div class="modal-foot">
+      <button class="btn ghost" id="btn-cancel-import">Cancelar</button>
+      <button class="btn primary" id="btn-confirm-import">Importar</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast" class="toast"></div>
 
 <script>
+/* ═══════════════════════════════════════════════════════════════
+   FOPE III – APP COMPLETO (formulário simulador)
+═══════════════════════════════════════════════════════════════ */
+
+// CONFIGURAR a URL do Apps Script (mesma do site antigo)
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwTEzQ9fmOKCpZRHnq7L-tOmFp2c8vEWpHVUjNnHon15AFa0bYe20uu5P_kW32E5lFy/exec";
 
-const $ = id => document.getElementById(id);
+// ───────── ESTADO CENTRAL ─────────
+const state = {
+  formulario: "AAA001",
+  operador:"", turma:"", supervisor:"", data:"",
+  horario_inicial:"", horario_final:"", turno:"", email_destino:"",
+  dados: {}, anotacoes_p1: "", anotacoes_p2: ""
+};
 
-let currentJson = null;
-
-const STATUS_MA = [
-  "MA",
-  "MAN",
-  "MNT",
-  "MANUT",
-  "MANUTENCAO",
-  "MANUTENÇÃO",
-  "EM_MANUTENCAO",
-  "EM_MANUTENÇÃO"
-];
-
-function esc(v) {
-  return String(v ?? "").replace(/[&<>"]/g, c => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;"
-  }[c]));
+// Helper get/set por "path" estilo "a.b.c"
+function getPath(obj, path){
+  return path.split('.').reduce((o,k)=>o==null?undefined:o[k], obj);
+}
+function setPath(obj, path, value){
+  const keys = path.split('.');
+  let ref = obj;
+  for (let i=0; i<keys.length-1; i++){
+    if (ref[keys[i]] == null || typeof ref[keys[i]] !== 'object') ref[keys[i]] = {};
+    ref = ref[keys[i]];
+  }
+  ref[keys[keys.length-1]] = value;
 }
 
-function setMsg(id, tipo, txt) {
-  const el = $(id);
-  el.className = "msg " + tipo;
-  el.innerHTML = txt;
+// ───────── TIPOS DE CAMPO ─────────
+// Cada tipo retorna o HTML do controle e sabe ler/gravar do estado
+const TIPOS = {
+  text:    { render: (id,path,opts={}) => `<input type="text" id="${id}" data-path="${path}" data-tipo="text" placeholder="${opts.ph||''}">` },
+  number:  { render: (id,path,opts={}) => `<input type="number" id="${id}" data-path="${path}" data-tipo="number" step="any" placeholder="${opts.ph||''}">` },
+  bool:    { render: (id,path) => chips(id,path,"t-bool",[["true","Sim"],["false","Não"]]) },
+  sn:      { render: (id,path) => chips(id,path,"t-sn",[["SIM","Sim"],["NÃO","Não"]]) },
+  op_sb_ma:{ render: (id,path) => chips(id,path,"t-op",[["OP","OP"],["SB","SB"],["MA","MA"]]) },
+  des_man_auto:{ render: (id,path) => chips(id,path,"t-da",[["DES","DES"],["MAN","MAN"],["AUTO","AUTO"]]) },
+  man_op_auto:{ render: (id,path) => chips(id,path,"t-da",[["MAN","MAN"],["OP","OP"],["AUTO","AUTO"]]) },
+  pit_status:{ render: (id,path) => chips(id,path,"t-da",[["MAN","MAN"],["AUTO","AUTO"],["MANUTENÇÃO","Manut."]]) },
+  mn_mx:   { render: (id,path) => chips(id,path,"t-mx",[["MN","MN"],["MX","MX"]]) },
+  mn_opc_mx:{ render: (id,path) => chips(id,path,"t-mx",[["MN","MN"],["OPC","OPC"],["MX","MX"]]) },
+  pit_nivel:{ render: (id,path) => chips(id,path,"t-mx",[["0","0"],["20","20"],["40","40"],["60","60"],["80","80"],["100","100"]]) },
+  valve:   { render: (id,path) => chips(id,path,"t-vl",[["ABERTA","Aberta"],["FECHADA","Fechada"]]) },
+  unic:    { render: (id,path) => chips(id,path,"t-uok",[["OK","OK"],["FALHA","Falha"]]) }
+};
+
+function chips(id, path, classe, options){
+  return `<div class="chips ${classe}" data-path="${path}" data-tipo="${classe}">
+    ${options.map(([val,label])=>`
+      <label>
+        <input type="radio" name="${id}" value="${val}">
+        <span class="chip" data-v="${val}">${label}</span>
+      </label>`).join('')}
+  </div>`;
 }
 
-function clearMsg(id) {
-  const el = $(id);
-  el.className = "msg";
-  el.innerHTML = "";
-}
-
-function tentarParse(txt) {
-  txt = String(txt || "").trim();
-
-  if (!txt) {
-    throw new Error("JSON vazio.");
+// Função para escrever no estado conforme o tipo
+function escreverNoEstado(path, valor, tipo){
+  if (tipo === 't-op' || tipo === 't-da' || tipo === 't-mx' || tipo === 't-vl'){
+    // Status/nível como objeto com booleanos
+    const opcoes = {
+      't-op':  ['OP','SB','MA'],
+      't-da':  ['DES','MAN','AUTO','MN','MX','OPC','OP','MANUTENÇÃO'], // superset
+      't-mx':  ['MN','OPC','MX','0','20','40','60','80','100'],
+      't-vl':  ['ABERTA','FECHADA']
+    };
+    const obj = {};
+    (opcoes[tipo]||[]).forEach(k => { obj[k] = false; });
+    if (valor !== "" && valor != null) obj[valor] = true;
+    setPath(state.dados, path, obj);
   }
-
-  txt = txt.replace(/^\uFEFF/, "");
-
-  const ini = txt.indexOf("{");
-  const fim = txt.lastIndexOf("}");
-
-  if (ini >= 0 && fim > ini) {
-    txt = txt.slice(ini, fim + 1);
+  else if (tipo === 't-bool'){
+    setPath(state.dados, path, valor === 'true');
   }
-
-  try {
-    return JSON.parse(txt);
-  } catch (e) {
-    const corrigido = txt
-      .replace(/,\s*([}\]])/g, "$1")
-      .replace(/[“”]/g, '"')
-      .replace(/[‘’]/g, "'");
-
-    return JSON.parse(corrigido);
+  else if (tipo === 't-sn' || tipo === 't-uok'){
+    setPath(state.dados, path, valor);
+  }
+  else {
+    setPath(state.dados, path, valor);
   }
 }
 
-function normalizarStatus(v) {
-  if (v == null) return "";
-
-  if (typeof v === "string") {
-    return v
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .toUpperCase()
-      .trim()
-      .replace(/\./g, "")
-      .replace(/\s+/g, "_");
-  }
-
-  if (typeof v === "object") {
-    for (const k of Object.keys(v)) {
-      if (v[k] === true) return normalizarStatus(k);
+// Função para ler do estado e marcar/preencher o controle
+function lerDoEstado(el, path, tipo){
+  const valor = getPath(state.dados, path);
+  if (tipo === 'text' || tipo === 'number'){
+    el.value = (valor == null) ? "" : valor;
+  } else if (tipo === 't-bool'){
+    if (typeof valor === 'boolean'){
+      const r = el.querySelector(`input[value="${valor?'true':'false'}"]`);
+      if (r) r.checked = true;
     }
-
-    if (v.status) return normalizarStatus(v.status);
-    if (v.valor) return normalizarStatus(v.valor);
-  }
-
-  return String(v).toUpperCase().trim();
-}
-
-function isManut(v) {
-  const s = normalizarStatus(v);
-  return STATUS_MA.map(normalizarStatus).includes(s) || s.includes("MANUT");
-}
-
-function statusDetectado(v) {
-  if (typeof v === "object" && v) {
-    for (const k of Object.keys(v)) {
-      if (v[k] === true) return normalizarStatus(k);
+  } else if (tipo === 't-sn' || tipo === 't-uok'){
+    if (typeof valor === 'string'){
+      const r = el.querySelector(`input[value="${valor}"]`);
+      if (r) r.checked = true;
     }
-  }
-
-  return normalizarStatus(v);
-}
-
-function buscarManutencao(obj) {
-  const out = [];
-
-  function walk(node, path = []) {
-    if (!node || typeof node !== "object") return;
-
-    for (const [k, v] of Object.entries(node)) {
-      const pk = path.concat(k);
-      const key = String(k).toUpperCase();
-
-      if ((key.startsWith("STATUS") || key === "MA" || key === "MAN") && isManut(v)) {
-        const tag =
-          pk.map(x => String(x)).find(x => /^[A-Z]{2,5}\d{2,4}$/i.test(x)) ||
-          String(k).replace(/^status[_-]?/i, "");
-
-        out.push({
-          tag: String(tag).toUpperCase(),
-          status: statusDetectado(v),
-          local: path.slice(-2).join(" / ")
-        });
-      }
-
-      if (typeof v === "object") {
-        walk(v, pk);
-      } else if (/^[A-Z]{2,5}\d{2,4}$/i.test(k) && isManut(v)) {
-        out.push({
-          tag: String(k).toUpperCase(),
-          status: statusDetectado(v),
-          local: path.slice(-2).join(" / ")
-        });
+  } else if (tipo === 't-op' || tipo === 't-da' || tipo === 't-mx' || tipo === 't-vl'){
+    if (valor && typeof valor === 'object'){
+      const ativo = Object.keys(valor).find(k => valor[k] === true);
+      if (ativo){
+        const r = el.querySelector(`input[value="${ativo}"]`);
+        if (r) r.checked = true;
       }
     }
   }
-
-  walk(obj?.dados || obj || {});
-
-  const dedup = new Map();
-  for (const item of out) {
-    dedup.set(item.tag + "|" + item.local, item);
-  }
-
-  return [...dedup.values()];
 }
 
-function coletarAnotacoes(obj) {
-  const arr = [];
+// ───────── HELPER DE CONSTRUÇÃO DE FORMS ─────────
+function row(label, control){
+  return `<div class="field"><label>${label}</label>${control}</div>`;
+}
+function ctrl(tipo, path, opts={}){
+  const id = "f_" + path.replace(/[^a-z0-9]/gi,'_') + "_" + Math.random().toString(36).slice(2,7);
+  return TIPOS[tipo].render(id, path, opts);
+}
 
-  function walk(node) {
-    if (!node || typeof node !== "object") return;
+// ───────── RENDER DE SEÇÕES ─────────
+function renderKvGrid(spec){
+  const cols = spec.colunas || 2;
+  const grid = `grid-template-columns:repeat(${cols},1fr)`;
+  const html = spec.campos.map(c=>{
+    return `<div class="field"><label>${c.label}</label>${ctrl(c.tipo, c.path, c.opts||{})}</div>`;
+  }).join('');
+  return `<div style="display:grid;${grid};gap:10px">${html}</div>`;
+}
 
-    for (const [k, v] of Object.entries(node)) {
-      const lk = String(k).toLowerCase();
+function renderTable(spec){
+  const thead = `<thead><tr><th>${spec.colunas.join('</th><th>')}</th></tr></thead>`;
+  const tbody = spec.linhas.map(L=>{
+    const tds = L.campos.map(c=>`<td>${ctrl(c.tipo, c.path, c.opts||{})}</td>`).join('');
+    const rot = L.rotulo ? `<td class="row-label">${L.rotulo}</td>` : '';
+    return `<tr>${rot}${tds}</tr>`;
+  }).join('');
+  return `<div class="tbl-wrap"><table class="eq">${thead}<tbody>${tbody}</tbody></table></div>`;
+}
 
-      if (lk.includes("anot") || lk.includes("observ")) {
-        if (Array.isArray(v)) {
-          arr.push(...v.filter(Boolean).map(String));
-        } else if (typeof v === "string" && v.trim()) {
-          arr.push(v.trim());
+function renderRepeatTable(spec){
+  const linhas = [];
+  for (let i=1; i<=spec.n; i++){
+    if (spec.filter && !spec.filter(i)) continue;
+    linhas.push(spec.linha(i));
+  }
+  return renderTable({ colunas: spec.colunas, linhas: linhas });
+}
+
+function renderRows(spec){
+  // várias linhas (mistura sub-sec + outros tipos)
+  return spec.linhas.map(L=>{
+    if (L.tipo === 'sub-sec') return `<div class="sub-sec">${L.texto}</div>`;
+    if (L.tipo === 'note') return `<div class="note">${L.texto}</div>`;
+    if (L.tipo === 'kv-grid') return renderKvGrid(L);
+    if (L.tipo === 'table') return renderTable(L);
+    if (L.tipo === 'repeat-table') return renderRepeatTable(L);
+    return '';
+  }).join('');
+}
+
+function renderSection(spec, idx){
+  const headClass = spec.headClass || '';
+  let body = '';
+  if (spec.tipo === 'kv-grid') body = renderKvGrid(spec);
+  else if (spec.tipo === 'table') body = renderTable(spec);
+  else if (spec.tipo === 'repeat-table') body = renderRepeatTable(spec);
+  else if (spec.tipo === 'rows') body = renderRows(spec);
+  return `<div class="card">
+    <div class="card-head ${headClass}">
+      <h2>${spec.titulo}</h2>
+      <span class="badge-num">${String(idx+2).padStart(2,'0')}</span>
+    </div>
+    <div class="card-body">${body}</div>
+  </div>`;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SCHEMAS — TODOS OS CAMPOS DOS PDFs AAA001 e AAA002
+═══════════════════════════════════════════════════════════════ */
+
+// ────── AAA001 ──────
+const SCHEMA_AAA001 = [
+  {
+    titulo:"Oficina", tipo:"kv-grid", colunas:2,
+    campos:[
+      { label:"Canaletas obstruídas?",    tipo:"bool", path:"oficina.canaletas_obstruidas" },
+      { label:"Necessita de organização?",tipo:"bool", path:"oficina.necessita_organizacao" }
+    ]
+  },
+  {
+    titulo:"Bombas dos Poços", tipo:"table",
+    colunas:["Bomba","Status","Fluxômetro"],
+    linhas:[
+      { rotulo:"Poço 01", campos:[
+        { tipo:"op_sb_ma", path:"bombas_pocos.bomba_poco_01.status" },
+        { tipo:"text", path:"bombas_pocos.bomba_poco_01.fluxometro" }
+      ]},
+      { rotulo:"Poço 02", campos:[
+        { tipo:"op_sb_ma", path:"bombas_pocos.bomba_poco_02.status" },
+        { tipo:"text", path:"bombas_pocos.bomba_poco_02.fluxometro" }
+      ]}
+    ]
+  },
+  {
+    titulo:"Container de Combate a Incêndio — Bomba Diesel", tipo:"rows",
+    linhas:[
+      { tipo:"sub-sec", texto:"Status & Tensão & Horímetro" },
+      { tipo:"kv-grid", colunas:3, campos:[
+        { label:"Status BLE903", tipo:"des_man_auto", path:"bomba_diesel.status_BLE903" },
+        { label:"Status BLE904", tipo:"des_man_auto", path:"bomba_diesel.status_BLE904" },
+        { label:"Horímetro",     tipo:"text", path:"bomba_diesel.horimetro" },
+        { label:"Tensão Bat. 01",tipo:"text", path:"bomba_diesel.tensao_baterias_01_02.0" },
+        { label:"Tensão Bat. 02",tipo:"text", path:"bomba_diesel.tensao_baterias_01_02.1" },
+        { label:"Nv. Água Radiador", tipo:"mn_mx", path:"bomba_diesel.nivel_agua_radiador" }
+      ]},
+      { tipo:"sub-sec", texto:"Níveis" },
+      { tipo:"kv-grid", colunas:3, campos:[
+        { label:"Nv. Óleo Lubrificante", tipo:"mn_opc_mx", path:"bomba_diesel.nivel_oleo_lubrificante" },
+        { label:"Nv. Combustível",       tipo:"mn_opc_mx", path:"bomba_diesel.nivel_combustivel" },
+        { label:"Nv. Óleo Cavalete",     tipo:"mn_opc_mx", path:"bomba_diesel.nivel_oleo_cavalete_bomba" }
+      ]}
+    ]
+  },
+  {
+    titulo:"Bomba Sprinkler Elétrica & Bomba Jockey", tipo:"kv-grid", colunas:2,
+    campos:[
+      { label:"Sprinkler — Status BLE902",    tipo:"man_op_auto", path:"bomba_sprinkler.status_BLE902" },
+      { label:"Sprinkler — Nv. Óleo Cavalete",tipo:"mn_opc_mx",   path:"bomba_sprinkler.nivel_oleo_cavalete_bomba" },
+      { label:"Jockey — Status BLE902",       tipo:"man_op_auto", path:"bomba_jockey.status_BLE902" },
+      { label:"Jockey — Pressão do Sistema",  tipo:"text",        path:"bomba_jockey.pressao_sistema" }
+    ]
+  },
+  {
+    titulo:"ETA — Estação de Tratamento de Água", tipo:"rows",
+    linhas:[
+      { tipo:"kv-grid", colunas:3, campos:[
+        { label:"pH Bruta", tipo:"text", path:"eta.ph_bruta" },
+        { label:"pH Tratada", tipo:"text", path:"eta.ph_tratada" },
+        { label:"Pressão Bomba", tipo:"text", path:"eta.pressao_bomba_agua_tratada" },
+        { label:"Hidrôm. Água Tratada", tipo:"text", path:"eta.hidrometro_agua_tratada" },
+        { label:"Hidrôm. Água Bruta", tipo:"text", path:"eta.hidrometro_agua_bruta" },
+        { label:"Sist. Abrandado", tipo:"op_sb_ma", path:"eta.status_sistema_abrandado" },
+        { label:"Osmose Reversa", tipo:"op_sb_ma", path:"eta.status_osmose_reversa" }
+      ]},
+      { tipo:"sub-sec", texto:"Produtos Químicos — Nível" },
+      { tipo:"kv-grid", colunas:3, campos:[
+        { label:"Soda Cáustica", tipo:"text", path:"eta.nivel_soda_caustica" },
+        { label:"Cloro", tipo:"text", path:"eta.nivel_cloro" },
+        { label:"Complexante de Ferro", tipo:"text", path:"eta.nivel_complexante_ferro" },
+        { label:"Biocida", tipo:"text", path:"eta.nivel_biocida" },
+        { label:"Anti-incrustante O.R.", tipo:"text", path:"eta.nivel_anti_incrustante_or" },
+        { label:"Salmoura", tipo:"text", path:"eta.nivel_referencia_tanques_quimicos_maior_50" }
+      ]}
+    ]
+  },
+  {
+    titulo:"Área de Tancagem", tipo:"rows",
+    linhas:[
+      { tipo:"sub-sec", texto:"Tanques de combustível (m³ / °C)" },
+      { tipo:"table", colunas:["Tanque","m³","°C"], linhas:[
+        { rotulo:"Storage HFO [PAB901]", campos:[
+          { tipo:"text", path:"tancagem.storage_HFO_PAB901.m3" },
+          { tipo:"text", path:"tancagem.storage_HFO_PAB901.celsius" }]},
+        { rotulo:"Buffer HFO [PBA901]", campos:[
+          { tipo:"text", path:"tancagem.buffer_HFO_PBA901.m3" },
+          { tipo:"text", path:"tancagem.buffer_HFO_PBA901.celsius" }]},
+        { rotulo:"Day diário HFO [PBC901]", campos:[
+          { tipo:"text", path:"tancagem.day_diario_HFO_PBC901.m3" },
+          { tipo:"text", path:"tancagem.day_diario_HFO_PBC901.celsius" }]},
+        { rotulo:"LFO Diesel [PBF901]", campos:[
+          { tipo:"text", path:"tancagem.LFO_diesel_PBF901.m3" },
+          { tipo:"text", path:"tancagem.LFO_diesel_PBF901.celsius" }]},
+        { rotulo:"Água oleosa [DAB901]", campos:[
+          { tipo:"text", path:"tancagem.agua_oleosa_DAB901.m3" },
+          { tipo:"text", path:"tancagem.agua_oleosa_DAB901.celsius" }]},
+        { rotulo:"Borra [DDB901]", campos:[
+          { tipo:"text", path:"tancagem.borra_DDB901.m3" },
+          { tipo:"text", path:"tancagem.borra_DDB901.celsius" }]}
+      ]},
+      { tipo:"sub-sec", texto:"Outros tanques e indicadores" },
+      { tipo:"kv-grid", colunas:3, campos:[
+        { label:"Água bruta/incêndio [VBE901]", tipo:"text", path:"tancagem.agua_bruta_incendio_VBE901" },
+        { label:"Água abrandada",               tipo:"text", path:"tancagem.agua_abrandada" },
+        { label:"Água tratada [VBC901]",        tipo:"text", path:"tancagem.agua_tratada_VBC901" },
+        { label:"Óleo lubr. novo [QAC901]",     tipo:"text", path:"tancagem.oleo_lubrificante_novo_QAC901" },
+        { label:"Óleo lubr. usado [QAD901]",    tipo:"text", path:"tancagem.oleo_lubrificante_usado_QAD901" },
+        { label:"Óleo lubr. manut. [QAM901] %", tipo:"text", path:"tancagem.oleo_lubrificante_manutencao_QAM901_percentual" },
+        { label:"Óleo lubr. manut. [QAM902] %", tipo:"text", path:"tancagem.oleo_lubrificante_manutencao_QAM902_percentual" },
+        { label:"Áreas de contenção alagadas?", tipo:"sn",   path:"tancagem.areas_contencao_alagadas" }
+      ]}
+    ]
+  },
+  {
+    titulo:"Separadoras de HFO", tipo:"repeat-table", headClass:"green",
+    n:6,
+    colunas:["Separadora","Status","Temp °C","Vazão m³/h","Freq. Hz","Pressão óleo","Nível óleo","Horímetro"],
+    linha:(i)=>{
+      const k = "BJJ" + (900+i);
+      return { rotulo:`BJJ ${900+i}`, campos:[
+        { tipo:"op_sb_ma", path:`separadoras_hfo.${k}.status` },
+        { tipo:"text", path:`separadoras_hfo.${k}.temp_c` },
+        { tipo:"text", path:`separadoras_hfo.${k}.vazao_m3h` },
+        { tipo:"text", path:`separadoras_hfo.${k}.freq_hz` },
+        { tipo:"text", path:`separadoras_hfo.${k}.pressao_oleo` },
+        { tipo:"text", path:`separadoras_hfo.${k}.nivel_oleo` },
+        { tipo:"text", path:`separadoras_hfo.${k}.horimetro` }
+      ]};
+    }
+  },
+  {
+    titulo:"Bombas Feeders & Transferência", tipo:"rows", headClass:"green",
+    linhas:[
+      { tipo:"sub-sec", texto:"Feeders HFO" },
+      { tipo:"table", colunas:["Bomba","Status"], linhas:[
+        { rotulo:"PCA 901-1", campos:[{tipo:"op_sb_ma", path:"feeders.PCA901_1.status"}]},
+        { rotulo:"PCA 901-2", campos:[{tipo:"op_sb_ma", path:"feeders.PCA901_2.status"}]},
+        { rotulo:"PCA 902",   campos:[{tipo:"op_sb_ma", path:"feeders.PCA902.status"}]}
+      ]},
+      { tipo:"sub-sec", texto:"Feeders LFO & Fluxômetro lubrificante" },
+      { tipo:"table", colunas:["Bomba / Indicador","Valor"], linhas:[
+        { rotulo:"PCA 903-1 — Status", campos:[{tipo:"op_sb_ma", path:"feeders.PCA903_1.status"}]},
+        { rotulo:"PCA 903-2 — Status", campos:[{tipo:"op_sb_ma", path:"feeders.PCA903_2.status"}]},
+        { rotulo:"Fluxômetro lubrificante", campos:[{tipo:"text", path:"feeders.fluxometro_lubrificante"}]}
+      ]},
+      { tipo:"sub-sec", texto:"Bombas de Transferência" },
+      { tipo:"table", colunas:["Bomba","Status"], linhas:[
+        { rotulo:"PAC 901-1", campos:[{tipo:"op_sb_ma", path:"feeders.PAC901_1.status"}]},
+        { rotulo:"PAC 901-2", campos:[{tipo:"op_sb_ma", path:"feeders.PAC901_2.status"}]},
+        { rotulo:"PAC 902",   campos:[{tipo:"op_sb_ma", path:"feeders.PAC902.status"}]}
+      ]}
+    ]
+  },
+  {
+    titulo:"ETE — Estação de Tratamento de Efluentes", tipo:"kv-grid", colunas:3,
+    campos:[
+      { label:"Status",          tipo:"op_sb_ma", path:"ete.status" },
+      { label:"Alcalinizante",   tipo:"text", path:"ete.alcalinizante" },
+      { label:"Coagulante",      tipo:"text", path:"ete.coagulante" },
+      { label:"Floculante",      tipo:"text", path:"ete.floculante" },
+      { label:"Válvula Entrada", tipo:"valve", path:"ete.valvula_entrada" },
+      { label:"Válvula Saída",   tipo:"valve", path:"ete.valvula_saida" }
+    ]
+  },
+  {
+    titulo:"Caldeiras Recuperadoras", tipo:"rows",
+    linhas:[
+      { tipo:"note", texto:"Obs.: durante a inspeção realizar a extração de fundo, superfície e ramonagem das caldeiras em operação." },
+      { tipo:"repeat-table", n:5,
+        colunas:["Caldeira","Status","Entrada °C","Saída °C","Temp. Int. °C","Vapor bar","Água %"],
+        linha:(idx)=>{
+          const codes=["RCC061","RCC121","RCC181","RCC191","RCC201"];
+          const lab  =["RCC 061","RCC 121","RCC 181","RCC 191","RCC 201"];
+          const k = codes[idx-1];
+          return { rotulo: lab[idx-1], campos:[
+            { tipo:"op_sb_ma", path:`caldeiras_recuperadoras.${k}.status` },
+            { tipo:"text", path:`caldeiras_recuperadoras.${k}.entrada_c` },
+            { tipo:"text", path:`caldeiras_recuperadoras.${k}.saida_c` },
+            { tipo:"text", path:`caldeiras_recuperadoras.${k}.temp_int_c` },
+            { tipo:"text", path:`caldeiras_recuperadoras.${k}.vapor_bar` },
+            { tipo:"text", path:`caldeiras_recuperadoras.${k}.agua_percentual` }
+          ]};
         }
       }
+    ]
+  },
+  {
+    titulo:"Caldeiras Auxiliares", tipo:"rows",
+    linhas:[
+      { tipo:"note", texto:"Obs.: durante a inspeção realizar a extração de fundo e superfície das caldeiras em operação." },
+      { tipo:"table", colunas:["Caldeira","Status","Vapor bar","Temp. Int. °C","Nv. Combustível L","Água %"],
+        linhas:[
+          { rotulo:"RCE 901", campos:[
+            {tipo:"op_sb_ma", path:"caldeiras_auxiliares.RCE901.status"},
+            {tipo:"text", path:"caldeiras_auxiliares.RCE901.vapor_bar"},
+            {tipo:"text", path:"caldeiras_auxiliares.RCE901.temp_inter_c"},
+            {tipo:"text", path:"caldeiras_auxiliares.RCE901.nivel_comb_l"},
+            {tipo:"text", path:"caldeiras_auxiliares.RCE901.agua_percentual"}
+          ]},
+          { rotulo:"RCE 902", campos:[
+            {tipo:"op_sb_ma", path:"caldeiras_auxiliares.RCE902.status"},
+            {tipo:"text", path:"caldeiras_auxiliares.RCE902.vapor_bar"},
+            {tipo:"text", path:"caldeiras_auxiliares.RCE902.temp_inter_c"},
+            {tipo:"text", path:"caldeiras_auxiliares.RCE902.nivel_comb_l"},
+            {tipo:"text", path:"caldeiras_auxiliares.RCE902.agua_percentual"}
+          ]}
+        ]
+      },
+      { tipo:"sub-sec", texto:"Pressão Steam Header" },
+      { tipo:"kv-grid", colunas:2, campos:[
+        { label:"RDA 901", tipo:"text", path:"caldeiras_auxiliares.pressao_steam_header_RDA901" },
+        { label:"RDA 902", tipo:"text", path:"caldeiras_auxiliares.pressao_steam_header_RDA902" }
+      ]}
+    ]
+  },
+  {
+    titulo:"Container de Alimentação de Água das Caldeiras", tipo:"rows",
+    linhas:[
+      { tipo:"table", colunas:["Bomba","Status","Pressão"], linhas:[
+        { rotulo:"RBB 901-1", campos:[
+          {tipo:"op_sb_ma", path:"container_caldeiras.RBB901_1.status"},
+          {tipo:"text", path:"container_caldeiras.RBB901_1.pressao"}
+        ]},
+        { rotulo:"RBB 901-2", campos:[
+          {tipo:"op_sb_ma", path:"container_caldeiras.RBB901_2.status"},
+          {tipo:"text", path:"container_caldeiras.RBB901_2.pressao"}
+        ]}
+      ]},
+      { tipo:"sub-sec", texto:"Indicadores do container" },
+      { tipo:"kv-grid", colunas:3, campos:[
+        { label:"Alimentação RBA",            tipo:"text", path:"container_caldeiras.alimentacao_RBA" },
+        { label:"Nv. Alcalinizante (%)",      tipo:"text", path:"container_caldeiras.nivel_alcalinizante" },
+        { label:"Temperatura",                tipo:"text", path:"container_caldeiras.temperatura" },
+        { label:"Nv. Sequestrante O₂",        tipo:"text", path:"container_caldeiras.nivel_sequestrante_oxigenio" },
+        { label:"Nv. Dispersante",            tipo:"text", path:"container_caldeiras.nivel_dispersante" },
+        { label:"FISPQ no local?",            tipo:"sn",   path:"container_caldeiras.FISPQ_no_local" },
+        { label:"Vazamentos / Ruídos?",       tipo:"sn",   path:"container_caldeiras.vazamentos_ruidos_vibracoes" }
+      ]}
+    ]
+  },
+  {
+    titulo:"PITs", tipo:"repeat-table",
+    n:10, filter:(i)=>i!==7,
+    colunas:["PIT","Status","Nível %"],
+    linha:(i)=>{
+      const k = "DAD" + (900+i);
+      return { rotulo:`DAD ${900+i}`, campos:[
+        { tipo:"pit_status", path:`pits.${k}.status` },
+        { tipo:"pit_nivel",  path:`pits.${k}.nivel` }
+      ]};
+    }
+  },
+  {
+    titulo:"Black Start", tipo:"kv-grid", colunas:5,
+    campos:[
+      { label:"Horímetro",      tipo:"text", path:"black_start.horimetro" },
+      { label:"Bateria",        tipo:"text", path:"black_start.bateria" },
+      { label:"Óleo Cárter",    tipo:"text", path:"black_start.oleo_carter" },
+      { label:"Água Radiador",  tipo:"text", path:"black_start.agua_radiador" },
+      { label:"Combustível",    tipo:"text", path:"black_start.combustivel" }
+    ]
+  },
+  {
+    titulo:"Subestação", tipo:"table",
+    colunas:["Parâmetro","Trafo 01","Trafo 02"],
+    linhas:[
+      { rotulo:"Temp. enrolamentos", campos:[
+        { tipo:"text", path:"subestacao.trafo_01.temperatura_enrolamentos" },
+        { tipo:"text", path:"subestacao.trafo_02.temperatura_enrolamentos" }]},
+      { rotulo:"Temperatura do óleo", campos:[
+        { tipo:"text", path:"subestacao.trafo_01.temperatura_oleo" },
+        { tipo:"text", path:"subestacao.trafo_02.temperatura_oleo" }]},
+      { rotulo:"Nível de óleo", campos:[
+        { tipo:"text", path:"subestacao.trafo_01.nivel_oleo" },
+        { tipo:"text", path:"subestacao.trafo_02.nivel_oleo" }]},
+      { rotulo:"Vazamentos?", campos:[
+        { tipo:"text", path:"subestacao.trafo_01.vazamentos" },
+        { tipo:"text", path:"subestacao.trafo_02.vazamentos" }]},
+      { rotulo:"Nv. óleo selante sílica", campos:[
+        { tipo:"text", path:"subestacao.trafo_01.nivel_oleo_selante_silica" },
+        { tipo:"text", path:"subestacao.trafo_02.nivel_oleo_selante_silica" }]}
+    ]
+  },
+  {
+    titulo:"Temperaturas das Salas", tipo:"rows",
+    linhas:[
+      { tipo:"table", colunas:["Sala","Temp. °C","Umidade %"], linhas:[
+        { rotulo:"Sala de relés", campos:[
+          { tipo:"text", path:"temperaturas_salas.sala_reles.temperatura_c" },
+          { tipo:"text", path:"temperaturas_salas.sala_reles.umidade" }]},
+        { rotulo:"Sala bombas feeders FTH", campos:[
+          { tipo:"text", path:"temperaturas_salas.sala_bombas_feeders_FTH.temperatura_c" },
+          { tipo:"text", path:"temperaturas_salas.sala_bombas_feeders_FTH.umidade" }]},
+        { rotulo:"Sala média tensão 1", campos:[
+          { tipo:"text", path:"temperaturas_salas.sala_media_tensao_1.temperatura_c" },
+          { tipo:"text", path:"temperaturas_salas.sala_media_tensao_1.umidade" }]},
+        { rotulo:"Sala média tensão 2", campos:[
+          { tipo:"text", path:"temperaturas_salas.sala_media_tensao_2.temperatura_c" },
+          { tipo:"text", path:"temperaturas_salas.sala_media_tensao_2.umidade" }]},
+        { rotulo:"Sala de baterias", campos:[
+          { tipo:"text", path:"temperaturas_salas.sala_baterias.temperatura_c" },
+          { tipo:"text", path:"temperaturas_salas.sala_baterias.umidade" }]}
+      ]},
+      { tipo:"kv-grid", colunas:2, campos:[
+        { label:"Luvas de proteção MV01?", tipo:"sn", path:"temperaturas_salas.luvas_protecao_MV01" },
+        { label:"Luvas de proteção MV02?", tipo:"sn", path:"temperaturas_salas.luvas_protecao_MV02" }
+      ]}
+    ]
+  }
+];
 
-      if (typeof v === "object") {
-        walk(v);
+// ────── AAA002 ──────
+const UG_CAMPOS = [
+  { label:"Status",           tipo:"op_sb_ma",   sufixo:"status" },
+  { label:"Governador Nív.",  tipo:"mn_opc_mx",  sufixo:"governador_nivel" },
+  { label:"Mancal Acopl.",    tipo:"mn_opc_mx",  sufixo:"mancal_acoplado" },
+  { label:"Mancal Não Acopl.",tipo:"mn_opc_mx",  sufixo:"mancal_nao_acoplado" },
+  { label:"UNIC Status",      tipo:"unic",       sufixo:"unic_status" },
+  { label:"Aquec. Gerador",   tipo:"text",       sufixo:"aquecedor_gerador" },
+  { label:"Cárter",           tipo:"text",       sufixo:"carter_status" },
+  { label:"Tanque Expan.",    tipo:"mn_opc_mx",  sufixo:"tanque_expansao" },
+  { label:"UG Nível",         tipo:"text",       sufixo:"ug_nivel" }
+];
+
+const SEP_CAMPOS = [
+  { label:"Status",      tipo:"op_sb_ma", sufixo:"status" },
+  { label:"Motor",       tipo:"text",     sufixo:"motor_producao" },
+  { label:"Produção",    tipo:"text",     sufixo:"producao" },
+  { label:"Temp. °C",    tipo:"text",     sufixo:"temp_c" },
+  { label:"Vazão",       tipo:"text",     sufixo:"vazao" },
+  { label:"Cárter",      tipo:"text",     sufixo:"carter" },
+  { label:"Rotação Tag", tipo:"text",     sufixo:"rotacao_tag" },
+  { label:"Alarme",      tipo:"text",     sufixo:"alarme" }
+];
+
+const SCHEMA_AAA002 = [
+  {
+    titulo:"Governadores, Mancais, Tanques de Expansão e Cárteres", tipo:"rows",
+    linhas:[
+      { tipo:"note", texto:"Níveis operacionais do tanque de expansão > 50%" },
+      { tipo:"repeat-table", n:23,
+        colunas:["UG", ...UG_CAMPOS.map(c=>c.label)],
+        linha:(i)=>{
+          const ug = "UG"+String(i).padStart(2,"0");
+          return { rotulo:"UG#"+String(i).padStart(2,"0"),
+            campos: UG_CAMPOS.map(c=>({ tipo:c.tipo, path:`ugs.${ug}.${c.sufixo}` }))
+          };
+        }
       }
+    ]
+  },
+  {
+    titulo:"Tanques de Manutenção", tipo:"table",
+    colunas:["Tanque","Nível"],
+    linhas:[1,2,3,4].map(n=>({
+      rotulo:`VBA 90${n}`,
+      campos:[{ tipo:"text", path:`tanques_manutencao.VBA90${n}.nivel` }]
+    }))
+  },
+  {
+    titulo:"Temperaturas das Salas de Baixa Tensão", tipo:"rows",
+    linhas:[
+      { tipo:"table", colunas:["Sala","Temp. °C","Umidade %","Self ligada?"],
+        linhas:[
+          { rotulo:"LV 01", campos:[
+            { tipo:"text", path:"temperaturas_baixa_tensao.LV01.temperatura_c" },
+            { tipo:"text", path:"temperaturas_baixa_tensao.LV01.umidade" },
+            { tipo:"sn",   path:"temperaturas_baixa_tensao.LV01.self_ligada" }
+          ]},
+          { rotulo:"LV 02", campos:[
+            { tipo:"text", path:"temperaturas_baixa_tensao.LV02.temperatura_c" },
+            { tipo:"text", path:"temperaturas_baixa_tensao.LV02.umidade" },
+            { tipo:"sn",   path:"temperaturas_baixa_tensao.LV02.self_ligada" }
+          ]}
+        ]
+      }
+    ]
+  },
+  {
+    titulo:"Compressores de Ar de Partida", tipo:"table",
+    colunas:["Compressor","Status","Pressão ar","Nv. Cárter","Horímetro"],
+    linhas:["TSA901_1","TSA901_2","TSA902_1","TSA902_2"].map(k=>({
+      rotulo: k.replace("_","-").replace("TSA","TSA "),
+      campos:[
+        { tipo:"op_sb_ma", path:`compressores_ar_partida.${k}.status` },
+        { tipo:"text", path:`compressores_ar_partida.${k}.pressao_ar` },
+        { tipo:"text", path:`compressores_ar_partida.${k}.nivel_carter` },
+        { tipo:"text", path:`compressores_ar_partida.${k}.horimetro` }
+      ]
+    }))
+  },
+  {
+    titulo:"Compressores de Ar de Instrumentação", tipo:"rows",
+    linhas:[
+      { tipo:"table", colunas:["Compressor","Status","Pressão ar","Nv. Cárter","Horímetro"],
+        linhas:["TCA901","TCA902","TCA903"].map(k=>({
+          rotulo: k.replace("TCA","TCA "),
+          campos:[
+            { tipo:"op_sb_ma", path:`compressores_ar_instrumentacao.${k}.status` },
+            { tipo:"text", path:`compressores_ar_instrumentacao.${k}.pressao_ar` },
+            { tipo:"text", path:`compressores_ar_instrumentacao.${k}.nivel_carter` },
+            { tipo:"text", path:`compressores_ar_instrumentacao.${k}.horimetro` }
+          ]
+        }))
+      },
+      { tipo:"sub-sec", texto:"Secadores de ar de instrumentação" },
+      { tipo:"table", colunas:["Secador","Status"],
+        linhas:["TCA901","TCA902","TCA903"].map(k=>({
+          rotulo: k.replace("TCA","TCA "),
+          campos:[{ tipo:"op_sb_ma", path:`secadores_ar_instrumentacao.${k}` }]
+        }))
+      }
+    ]
+  },
+  {
+    titulo:"Condições Gerais da Sala de Máquinas", tipo:"kv-grid", colunas:1, headClass:"gray",
+    campos:[
+      { label:"Vazamentos, limpeza e iluminação", tipo:"text", path:"condicoes_gerais_sala_maquinas" }
+    ]
+  },
+  {
+    titulo:"Oil Mist Separator", tipo:"repeat-table",
+    n:23, colunas:["UG","Status"],
+    linha:(i)=>{
+      const ug = "UG"+String(i).padStart(2,"0");
+      return { rotulo:"UG#"+String(i).padStart(2,"0"),
+        campos:[{ tipo:"op_sb_ma", path:`oil_mist_separator.${ug}.status` }]
+      };
     }
-  }
-
-  walk(obj);
-
-  return [...new Set(arr)];
-}
-
-function corrigirBase(obj) {
-  obj = obj && typeof obj === "object" ? obj : {};
-
-  obj.origem = obj.origem || "GPT_FOPEIII";
-  obj.versao_schema = obj.versao_schema || "1.1";
-  obj.gerado_em = obj.gerado_em || new Date().toISOString();
-  obj.action = "register";
-
-  obj.formulario = String(obj.formulario || obj.tipo_formulario || "").toUpperCase().trim();
-  obj.operador = String(obj.operador || obj.nome_operador || "").trim();
-  obj.data = obj.data || obj.data_inspecao || "";
-  obj.horario_inicial = obj.horario_inicial || obj.hora_inicial || obj.inicio || "";
-  obj.horario_final = obj.horario_final || obj.hora_final || obj.final || "";
-  obj.turno = String(obj.turno || "").toUpperCase().trim();
-  obj.dados = obj.dados || {};
-  obj.alertas = Array.isArray(obj.alertas) ? obj.alertas : [];
-
-  atualizarResumo(obj);
-
-  return obj;
-}
-
-function atualizarResumo(obj) {
-  const manut = buscarManutencao(obj);
-  const anot = coletarAnotacoes(obj);
-
-  obj.resumo = obj.resumo || {};
-  obj.resumo.total_manutencao = manut.length;
-  obj.resumo.equipamentos_manutencao = manut;
-  obj.resumo.anotacoes = anot;
-
-  const pend = [];
-
-  if (!["AAA001", "AAA002"].includes(obj.formulario)) {
-    pend.push("Formulário ausente ou inválido. Use AAA001 ou AAA002.");
-  }
-
-  if (!obj.operador) pend.push("Operador ausente.");
-  if (!obj.data) pend.push("Data ausente.");
-  if (!obj.horario_inicial) pend.push("Horário inicial ausente.");
-  if (!obj.horario_final) pend.push("Horário final ausente.");
-
-  obj.validacao = obj.validacao || {};
-  obj.validacao.pendencias = pend;
-  obj.validacao.pronto_para_importar = pend.length === 0;
-}
-
-function renderResumo(obj) {
-  const pronto = obj?.validacao?.pronto_para_importar;
-
-  $("summary").innerHTML = `
-    <div class="k">Status</div>
-    <div>${pronto ? '<span class="badge okb">Pronto para envio</span>' : '<span class="badge badb">Corrigir pendências</span>'}</div>
-
-    <div class="k">Formulário</div>
-    <div>${esc(obj.formulario || "-")}</div>
-
-    <div class="k">Operador</div>
-    <div>${esc(obj.operador || "-")}</div>
-
-    <div class="k">Data</div>
-    <div>${esc(obj.data || "-")}</div>
-
-    <div class="k">Horário</div>
-    <div>${esc(obj.horario_inicial || "-")} → ${esc(obj.horario_final || "-")}</div>
-
-    <div class="k">Turno</div>
-    <div>${esc(obj.turno || "-")}</div>
-
-    <div class="k">Total manutenção</div>
-    <div><strong>${esc(obj.resumo?.total_manutencao ?? 0)}</strong></div>
-  `;
-
-  const manut = obj.resumo?.equipamentos_manutencao || [];
-
-  $("manutencao").innerHTML = manut.length
-    ? `
-      <table>
-        <thead>
-          <tr>
-            <th>Equipamento</th>
-            <th>Área / contexto</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${manut.map(m => `
-            <tr>
-              <td><strong>${esc(m.tag || m.equipamento || "-")}</strong></td>
-              <td>${esc(m.local || m.contexto || "-")}</td>
-              <td><span class="badge badb">${esc(m.status || "MAN")}</span></td>
-            </tr>
-          `).join("")}
-        </tbody>
-      </table>
-    `
-    : '<span class="badge okb">Nenhum equipamento em manutenção identificado.</span>';
-
-  const anot = obj.resumo?.anotacoes || [];
-  $("anotacoes").textContent = anot.length ? anot.map(a => "- " + a).join("\n") : "-";
-
-  const pend = obj.validacao?.pendencias || [];
-  $("pendencias").textContent = pend.length ? pend.map(p => "- " + p).join("\n") : "Sem pendências.";
-
-  $("btnSend").disabled = !pronto;
-}
-
-function tipoValor(v) {
-  if (typeof v === "boolean") return "boolean";
-  if (typeof v === "number") return "number";
-  return "text";
-}
-
-function getByPath(obj, path) {
-  return path.reduce((acc, key) => acc?.[key], obj);
-}
-
-function setByPath(obj, path, value) {
-  let ref = obj;
-
-  for (let i = 0; i < path.length - 1; i++) {
-    ref = ref[path[i]];
-  }
-
-  const last = path[path.length - 1];
-  const atual = ref[last];
-
-  if (typeof atual === "boolean") {
-    ref[last] = value === "true";
-  } else if (typeof atual === "number") {
-    const n = Number(value);
-    ref[last] = Number.isNaN(n) ? value : n;
-  } else {
-    ref[last] = value;
-  }
-}
-
-function renderEditor(obj) {
-  const editor = $("editor");
-  editor.innerHTML = "";
-
-  function criarCampo(path, value) {
-    const div = document.createElement("div");
-    div.className = "field";
-
-    const small = document.createElement("small");
-    small.textContent = path.join(".");
-    div.appendChild(small);
-
-    const row = document.createElement("div");
-    row.className = "field-row";
-
-    let input;
-
-    if (typeof value === "boolean") {
-      input = document.createElement("select");
-
-      const optTrue = document.createElement("option");
-      optTrue.value = "true";
-      optTrue.textContent = "true";
-
-      const optFalse = document.createElement("option");
-      optFalse.value = "false";
-      optFalse.textContent = "false";
-
-      input.appendChild(optTrue);
-      input.appendChild(optFalse);
-      input.value = String(value);
-    } else {
-      input = document.createElement("input");
-      input.type = tipoValor(value);
-      input.value = value ?? "";
+  },
+  {
+    titulo:"Horímetro das Separadoras de Óleo Lubrificante", tipo:"repeat-table", headClass:"green",
+    n:23, colunas:["Separadora", ...SEP_CAMPOS.map(c=>c.label)],
+    linha:(i)=>{
+      const k = "QBB" + String(i).padStart(2,"0") + "1";
+      return { rotulo:k,
+        campos: SEP_CAMPOS.map(c=>({ tipo:c.tipo, path:`separadoras_oleo.${k}.${c.sufixo}` }))
+      };
     }
+  },
+  {
+    titulo:"Rotinas durante a Inspeção", tipo:"rows", headClass:"amber",
+    linhas:[
+      { tipo:"kv-grid", colunas:2, campos:[
+        { label:"Limpeza nos módulos de combustíveis, UGs e separadoras", tipo:"sn", path:"rotinas_inspecao.limpeza_modulos_combustiveis" },
+        { label:"Bolhas nos tanques de expansão das UGs",                 tipo:"sn", path:"rotinas_inspecao.bolhas_tanques_expansao" },
+        { label:"Drenagens dos silenciadores de ar de carga das UGs",     tipo:"sn", path:"rotinas_inspecao.drenagens_silenciadores" },
+        { label:"Vazamentos de óleo lubrificante",                        tipo:"sn", path:"rotinas_inspecao.vazamentos_oleo_lubrificante" },
+        { label:"Vestígio de condensado durante drenagem manual?",        tipo:"sn", path:"rotinas_inspecao.vestigio_condensado" }
+      ]},
+      { tipo:"sub-sec", texto:"Drenagem manual nos purgadores eletrônicos" },
+      { tipo:"kv-grid", colunas:4, campos:[
+        { label:"Grupo 1", tipo:"bool", path:"rotinas_inspecao.drenagem_grupo_1" },
+        { label:"Grupo 2", tipo:"bool", path:"rotinas_inspecao.drenagem_grupo_2" },
+        { label:"Grupo 3", tipo:"bool", path:"rotinas_inspecao.drenagem_grupo_3" },
+        { label:"Grupo 4", tipo:"bool", path:"rotinas_inspecao.drenagem_grupo_4" }
+      ]}
+    ]
+  }
+];
 
-    input.addEventListener("input", () => {
-      setByPath(currentJson, path, input.value);
-      atualizarResumo(currentJson);
-      $("jsonInput").value = JSON.stringify(currentJson, null, 2);
-      renderResumo(currentJson);
+/* ═══════════════════════════════════════════════════════════════
+   RENDERIZAÇÃO + BIND
+═══════════════════════════════════════════════════════════════ */
+
+function renderForm(){
+  const schema = state.formulario === "AAA001" ? SCHEMA_AAA001 : SCHEMA_AAA002;
+  const host = document.getElementById('sections');
+  host.innerHTML = schema.map((s,i)=>renderSection(s,i)).join('');
+  bindAll();
+  applyState();
+  updateResumo();
+}
+
+function bindAll(){
+  // Inputs (text/number/select/textarea com data-bind para identificação)
+  document.querySelectorAll('[data-bind]').forEach(el=>{
+    if (el.__bound) return; el.__bound = true;
+    el.addEventListener('input', ()=>{
+      const k = el.getAttribute('data-bind');
+      state[k] = el.value;
+      updateResumo();
     });
-
-    row.appendChild(input);
-
-    const type = document.createElement("span");
-    type.className = "badge warnb";
-    type.textContent = Array.isArray(getByPath(currentJson, path)) ? "array" : typeof value;
-
-    row.appendChild(type);
-    div.appendChild(row);
-
-    editor.appendChild(div);
-  }
-
-  function walk(node, path = []) {
-    if (node === null || node === undefined) {
-      criarCampo(path, "");
-      return;
-    }
-
-    if (typeof node !== "object") {
-      criarCampo(path, node);
-      return;
-    }
-
-    if (path.length > 0) {
-      const section = document.createElement("div");
-      section.className = "section-title";
-      section.textContent = path.join(".");
-      editor.appendChild(section);
-    }
-
-    for (const [k, v] of Object.entries(node)) {
-      walk(v, path.concat(k));
-    }
-  }
-
-  walk(obj);
+  });
+  // Inputs com data-path (campos dos schemas)
+  document.querySelectorAll('input[data-path],textarea[data-path]').forEach(el=>{
+    if (el.__bound) return; el.__bound = true;
+    el.addEventListener('input', ()=>{
+      escreverNoEstado(el.getAttribute('data-path'), el.value, el.getAttribute('data-tipo'));
+      updateResumo();
+    });
+  });
+  // Radios dentro de .chips
+  document.querySelectorAll('.chips').forEach(grp=>{
+    if (grp.__bound) return; grp.__bound = true;
+    const path = grp.getAttribute('data-path');
+    const tipo = grp.getAttribute('data-tipo');
+    grp.querySelectorAll('input[type=radio]').forEach(r=>{
+      r.addEventListener('change', ()=>{
+        if (r.checked) escreverNoEstado(path, r.value, tipo);
+        updateResumo();
+      });
+    });
+  });
 }
 
-function validarJson() {
-  clearMsg("msg");
-  clearMsg("sendMsg");
-
-  try {
-    const obj = tentarParse($("jsonInput").value);
-    currentJson = corrigirBase(obj);
-
-    $("jsonInput").value = JSON.stringify(currentJson, null, 2);
-
-    renderResumo(currentJson);
-    renderEditor(currentJson);
-
-    if (currentJson.validacao.pronto_para_importar) {
-      setMsg("msg", "ok", "JSON validado. Confira os dados editáveis antes do envio.");
-    } else {
-      setMsg("msg", "warn", "JSON validado, porém existem pendências para corrigir.");
-    }
-
-  } catch (e) {
-    currentJson = null;
-    $("btnSend").disabled = true;
-    setMsg("msg", "err", "Erro ao ler JSON: " + e.message);
-  }
+function applyState(){
+  // Identificação
+  document.querySelectorAll('[data-bind]').forEach(el=>{
+    const k = el.getAttribute('data-bind');
+    el.value = state[k] || "";
+  });
+  // Campos do schema
+  document.querySelectorAll('[data-path]').forEach(el=>{
+    const path = el.getAttribute('data-path');
+    const tipo = el.getAttribute('data-tipo');
+    lerDoEstado(el, path, tipo);
+  });
 }
 
-function baixarJson() {
-  if (!currentJson) {
-    validarJson();
+/* ═══════════════════════════════════════════════════════════════
+   COLETA DE PAYLOAD + RESUMO + VALIDAÇÃO + ENVIO
+═══════════════════════════════════════════════════════════════ */
+
+function montarPayload(){
+  const lin1 = (state.anotacoes_p1 || "").split('\n').map(s=>s.trim()).filter(Boolean);
+  const lin2 = (state.anotacoes_p2 || "").split('\n').map(s=>s.trim()).filter(Boolean);
+
+  // garante anotações dentro de dados
+  const dados = JSON.parse(JSON.stringify(state.dados));
+  dados.anotacoes_p1 = lin1;
+  dados.anotacoes_p2 = lin2;
+
+  // calcula alertas básicos: cada equipamento MA -> ATENCAO
+  const manut = coletarManutencao(dados);
+  const alertas = manut.map(m => ({ tipo:"ATENCAO", mensagem:`${m.tag} em manutenção (${m.local||"-"})` }));
+
+  return {
+    origem: "FOPEIII_FORM",
+    versao_schema: "1.2",
+    gerado_em: new Date().toISOString(),
+    action: "register",
+    formulario: state.formulario,
+    operador: state.operador,
+    turma: state.turma,
+    supervisor: state.supervisor,
+    data: state.data,
+    horario_inicial: state.horario_inicial,
+    horario_final: state.horario_final,
+    turno: state.turno,
+    email_destino: state.email_destino,
+    protocolo: gerarProtocolo(),
+    dados,
+    alertas,
+    resumo: {
+      total_manutencao: manut.length,
+      equipamentos_manutencao: manut,
+      anotacoes: [...lin1, ...lin2]
+    },
+    validacao: validar()
+  };
+}
+
+function gerarProtocolo(){
+  const d = new Date();
+  const p = (n)=>String(n).padStart(2,"0");
+  return `${state.formulario}-${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`;
+}
+
+function coletarManutencao(dados){
+  const lista = [];
+  function isMA(v){ return v && typeof v === 'object' && v.MA === true; }
+  function tagLabel(k){ return k.replace(/_/g,"-"); }
+
+  // Equipamentos do AAA001 com status OP/SB/MA
+  const ma001 = [
+    ["bombas_pocos.bomba_poco_01.status","Bomba Poço 01","Poços"],
+    ["bombas_pocos.bomba_poco_02.status","Bomba Poço 02","Poços"],
+    ["bomba_diesel.status_BLE903","BLE903","Bomba Diesel CI"],
+    ["bomba_diesel.status_BLE904","BLE904","Bomba Diesel CI"],
+    ["bomba_sprinkler.status_BLE902","BLE902 Sprinkler","CI"],
+    ["bomba_jockey.status_BLE902","BLE902 Jockey","CI"],
+    ["eta.status_sistema_abrandado","Sist. Abrandado","ETA"],
+    ["eta.status_osmose_reversa","Osmose Reversa","ETA"],
+    ["ete.status","ETE","ETE"],
+    ...["BJJ901","BJJ902","BJJ903","BJJ904","BJJ905","BJJ906"].map(k=>[`separadoras_hfo.${k}.status`,k,"Sep. HFO"]),
+    ...["RCC061","RCC121","RCC181","RCC191","RCC201"].map(k=>[`caldeiras_recuperadoras.${k}.status`,k,"Caldeiras Rec."]),
+    ...["RCE901","RCE902"].map(k=>[`caldeiras_auxiliares.${k}.status`,k,"Caldeiras Aux."]),
+    ...["RBB901_1","RBB901_2"].map(k=>[`container_caldeiras.${k}.status`,tagLabel(k),"Container Cal."])
+  ];
+
+  // Equipamentos do AAA002
+  const ma002 = [];
+  for (let i=1;i<=23;i++){
+    const ug="UG"+String(i).padStart(2,"0");
+    ma002.push([`ugs.${ug}.status`, ug, "UGs"]);
+    ma002.push([`oil_mist_separator.${ug}.status`, ug+" (OMS)", "Oil Mist"]);
+    const sep="QBB"+String(i).padStart(2,"0")+"1";
+    ma002.push([`separadoras_oleo.${sep}.status`, sep, "Sep. Óleo"]);
   }
-
-  if (!currentJson) return;
-
-  atualizarResumo(currentJson);
-
-  const blob = new Blob([JSON.stringify(currentJson, null, 2)], {
-    type: "application/json;charset=utf-8"
+  ["TSA901_1","TSA901_2","TSA902_1","TSA902_2"].forEach(k=>{
+    ma002.push([`compressores_ar_partida.${k}.status`, tagLabel(k), "Compr. Partida"]);
+  });
+  ["TCA901","TCA902","TCA903"].forEach(k=>{
+    ma002.push([`compressores_ar_instrumentacao.${k}.status`, k, "Compr. Instr."]);
   });
 
-  const nome = `FOPEIII_${currentJson.formulario || "CHECKLIST"}_${(currentJson.data || "").replaceAll("/", "-") || "sem-data"}.json`;
-
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = nome;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(a.href);
+  const lista_def = state.formulario==="AAA001" ? ma001 : ma002;
+  lista_def.forEach(([path,tag,local])=>{
+    if (isMA(getPath(dados, path))){
+      lista.push({ tag, equipamento: tag, status:"MA", local });
+    }
+  });
+  return lista;
 }
 
-async function enviarJson() {
-  clearMsg("sendMsg");
+function contarStatus(dados, target){
+  let n = 0;
+  function walk(o){
+    if (!o || typeof o !== 'object') return;
+    if (o[target] === true && (o.OP===true||o.OP===false) && Object.keys(o).every(k=>typeof o[k]==='boolean')) { n++; return; }
+    for (const k of Object.keys(o)){
+      if (typeof o[k] === 'object') walk(o[k]);
+    }
+  }
+  walk(dados);
+  return n;
+}
 
-  if (!currentJson) {
-    validarJson();
+function validar(){
+  const pend = [];
+  if (!["AAA001","AAA002"].includes(state.formulario)) pend.push("Formulário ausente.");
+  if (!state.operador) pend.push("Operador ausente.");
+  if (!state.data) pend.push("Data ausente.");
+  if (!state.horario_inicial) pend.push("Horário inicial ausente.");
+  if (!state.horario_final) pend.push("Horário final ausente.");
+  return {
+    pronto_para_importar: pend.length === 0,
+    pendencias: pend,
+    observacoes: []
+  };
+}
+
+function updateResumo(){
+  const dados = JSON.parse(JSON.stringify(state.dados));
+  const manut = coletarManutencao(dados);
+  const op = contarStatus(dados,"OP");
+  const sb = contarStatus(dados,"SB");
+  const val = validar();
+
+  document.getElementById('rs-form').textContent = state.formulario;
+  document.getElementById('rs-op').textContent = state.operador || "—";
+  document.getElementById('rs-data').textContent = state.data || "—";
+  document.getElementById('rs-turno').textContent = state.turno || "—";
+  document.getElementById('rs-ma').textContent = manut.length;
+  document.getElementById('rs-op-cnt').textContent = op;
+  document.getElementById('rs-sb').textContent = sb;
+  document.getElementById('form-pill').textContent = state.formulario;
+
+  const status = document.getElementById('rs-status');
+  if (val.pronto_para_importar){
+    status.className = "pill ok"; status.textContent = "pronto para envio";
+  } else {
+    status.className = "pill warn"; status.textContent = `${val.pendencias.length} pendência(s)`;
   }
 
-  if (!currentJson) return;
-
-  atualizarResumo(currentJson);
-
-  if (!currentJson.validacao.pronto_para_importar) {
-    renderResumo(currentJson);
-    setMsg("sendMsg", "err", "Corrija as pendências antes de enviar.");
-    return;
+  // Lista de manutenção
+  const ml = document.getElementById('manut-list');
+  if (manut.length){
+    ml.innerHTML = manut.map(m=>`<div class="manut-item">
+      <span class="manut-tag">${m.tag}</span>
+      <span class="manut-ctx">${m.local || "-"}</span>
+    </div>`).join('');
+  } else {
+    ml.innerHTML = `<div class="manut-item"><span class="pill ok">Nenhum identificado.</span></div>`;
   }
 
-  if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes("COLE_AQUI")) {
-    setMsg("sendMsg", "err", "Configure a constante APPS_SCRIPT_URL no HTML com a URL /exec do Apps Script.");
-    return;
+  // Lista de pendências
+  const pl = document.getElementById('pendencias-list');
+  if (val.pendencias.length){
+    pl.innerHTML = val.pendencias.map(p=>`<div class="manut-item">
+      <span style="color:var(--amber);font-weight:800;font-size:11.5px">⚠</span>
+      <span style="font-size:11.5px;flex:1;text-align:left;margin-left:6px;color:#374151">${p}</span>
+    </div>`).join('');
+  } else {
+    pl.innerHTML = `<div class="manut-item"><span class="pill ok">Sem pendências.</span></div>`;
   }
 
-  $("btnSend").disabled = true;
-  setMsg("sendMsg", "warn", "Enviando JSON para registro...");
+  // habilita envio
+  document.getElementById('btn-send').disabled = !val.pronto_para_importar;
+}
 
-  try {
+/* ═══════════════════════════════════════════════════════════════
+   IMPORT / EXPORT / SEND / RESET / EXEMPLO
+═══════════════════════════════════════════════════════════════ */
+
+function toast(msg, kind='ok', dur=3000){
+  const t = document.getElementById('toast');
+  t.className = 'toast show '+kind;
+  t.textContent = msg;
+  clearTimeout(toast._t);
+  toast._t = setTimeout(()=>{ t.classList.remove('show'); }, dur);
+}
+
+function downloadJSON(){
+  const payload = montarPayload();
+  const op = (payload.operador||"sem-operador").replace(/\s+/g,"-");
+  const dt = (payload.data||"sem-data").replace(/\//g,"-");
+  const nome = `FOPEIII_${payload.formulario}_${dt}_${op}.json`;
+  const blob = new Blob([JSON.stringify(payload,null,2)],{type:"application/json;charset=utf-8"});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = nome;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(a.href);
+  toast("JSON baixado: "+nome,'ok');
+}
+
+async function enviarParaAppsScript(){
+  const payload = montarPayload();
+  if (!payload.validacao.pronto_para_importar){
+    toast("Corrija as pendências antes de enviar.",'warn'); return;
+  }
+  if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes("COLE_AQUI")){
+    toast("APPS_SCRIPT_URL não configurada no HTML.",'err',5000); return;
+  }
+  document.getElementById('btn-send').disabled = true;
+  toast("Enviando para registro...",'warn',4000);
+  try{
     await fetch(APPS_SCRIPT_URL, {
-      method: "POST",
-      mode: "no-cors",
-      headers: {
-        "Content-Type": "text/plain;charset=utf-8"
-      },
-      body: JSON.stringify(currentJson)
+      method:"POST", mode:"no-cors",
+      headers:{ "Content-Type":"text/plain;charset=utf-8" },
+      body: JSON.stringify(payload)
+    });
+    toast("Enviado! PDF, planilha e e-mail serão gerados em segundos.",'ok',5000);
+  }catch(err){
+    toast("Falha no envio: "+err.message,'err',5000);
+  }finally{
+    setTimeout(updateResumo, 800);
+  }
+}
+
+function limparTudo(){
+  if (!confirm("Limpar todos os campos preenchidos?")) return;
+  Object.assign(state, {
+    operador:"", turma:"", supervisor:"", data:"",
+    horario_inicial:"", horario_final:"", turno:"", email_destino:"",
+    dados:{}, anotacoes_p1:"", anotacoes_p2:""
+  });
+  renderForm();
+  toast("Formulário limpo.",'ok');
+}
+
+function importarJsonTexto(txt){
+  try{
+    txt = String(txt||"").trim().replace(/^\uFEFF/,'');
+    const ini = txt.indexOf('{'), fim = txt.lastIndexOf('}');
+    if (ini>=0 && fim>ini) txt = txt.slice(ini, fim+1);
+    const obj = JSON.parse(txt.replace(/,\s*([}\]])/g,'$1').replace(/[“”]/g,'"').replace(/[‘’]/g,"'"));
+
+    state.formulario = (obj.formulario||"AAA001").toUpperCase();
+    state.operador = obj.operador || "";
+    state.turma = obj.turma || "";
+    state.supervisor = obj.supervisor || "";
+    state.data = obj.data || "";
+    state.horario_inicial = obj.horario_inicial || "";
+    state.horario_final = obj.horario_final || "";
+    state.turno = obj.turno || "";
+    state.email_destino = obj.email_destino || "";
+    state.dados = obj.dados || {};
+    state.anotacoes_p1 = Array.isArray(obj.dados?.anotacoes_p1) ? obj.dados.anotacoes_p1.join('\n') : (obj.dados?.anotacoes_p1 || "");
+    state.anotacoes_p2 = Array.isArray(obj.dados?.anotacoes_p2) ? obj.dados.anotacoes_p2.join('\n') : (obj.dados?.anotacoes_p2 || "");
+
+    // Atualiza botões de tab
+    document.querySelectorAll('.form-switch button').forEach(b=>{
+      b.classList.toggle('active', b.getAttribute('data-form') === state.formulario);
     });
 
-    setMsg("sendMsg", "ok", "JSON enviado para registro. Aguarde alguns instantes e confira a planilha, o Drive e o e-mail.");
-
-  } catch (e) {
-    setMsg("sendMsg", "err", "Falha no envio: " + e.message);
-  } finally {
-    $("btnSend").disabled = false;
+    renderForm();
+    toast("JSON importado com sucesso.",'ok');
+    document.getElementById('import-modal').classList.remove('show');
+  }catch(e){
+    toast("Falha ao ler JSON: "+e.message,'err',5000);
   }
 }
 
-function limpar() {
-  currentJson = null;
-  $("jsonInput").value = "";
-  $("editor").innerHTML = '<span class="badge warnb">Valide o JSON para liberar os campos editáveis.</span>';
-  $("summary").innerHTML = '<div class="k">Status</div><div>Aguardando JSON.</div>';
-  $("manutencao").innerHTML = '<span class="badge warnb">Aguardando validação</span>';
-  $("anotacoes").textContent = "-";
-  $("pendencias").textContent = "-";
-  $("btnSend").disabled = true;
-  clearMsg("msg");
-  clearMsg("sendMsg");
+/* ═══════════════════════════════════════════════════════════════
+   PAYLOADS DE EXEMPLO (carregar exemplo)
+═══════════════════════════════════════════════════════════════ */
+
+const EXEMPLO_AAA001 = {
+  formulario:"AAA001",
+  operador:"Robson Santos", turma:"A", supervisor:"Fábio",
+  data:"11/05/2026", horario_inicial:"23:40", horario_final:"01:30", turno:"Noite",
+  dados:{
+    oficina:{ canaletas_obstruidas:false, necessita_organizacao:false },
+    bombas_pocos:{
+      bomba_poco_01:{ status:{OP:false,SB:true,MA:false}, fluxometro:"2614,805" },
+      bomba_poco_02:{ status:{OP:true,SB:false,MA:false}, fluxometro:"4860,237" }
+    },
+    bomba_diesel:{
+      status_BLE903:{DES:false,MAN:false,AUTO:true},
+      status_BLE904:{DES:false,MAN:false,AUTO:true},
+      tensao_baterias_01_02:["13.0","14.0"],
+      nivel_agua_radiador:{MN:false,MX:true},
+      nivel_oleo_lubrificante:{MN:false,OPC:true,MX:false},
+      nivel_combustivel:{MN:false,OPC:true,MX:false},
+      nivel_oleo_cavalete_bomba:{MN:false,OPC:true,MX:false},
+      horimetro:"221688"
+    },
+    bomba_sprinkler:{
+      status_BLE902:{MAN:false,OP:false,AUTO:true},
+      nivel_oleo_cavalete_bomba:{MN:false,OPC:true,MX:false}
+    },
+    bomba_jockey:{ status_BLE902:{MAN:false,OP:false,AUTO:true}, pressao_sistema:"7,2" },
+    eta:{
+      ph_bruta:"X", ph_tratada:"4,75",
+      status_sistema_abrandado:{OP:true,SB:false,MA:false},
+      status_osmose_reversa:{OP:false,SB:false,MA:true},
+      hidrometro_agua_tratada:"754964", hidrometro_agua_bruta:"18997",
+      pressao_bomba_agua_tratada:"4,2",
+      nivel_soda_caustica:"55%", nivel_complexante_ferro:"70%",
+      nivel_biocida:"100%", nivel_anti_incrustante_or:"55%",
+      nivel_referencia_tanques_quimicos_maior_50:"Sol. 100%"
+    },
+    ete:{ status:{OP:false,SB:false,MA:true},
+      valvula_entrada:{ABERTA:false,FECHADA:true}, valvula_saida:{ABERTA:false,FECHADA:true} },
+    anotacoes_p1:["BJJ-902 - faltando correia","BJJ-903 - faltando correia"],
+    anotacoes_p2:["RCE-19 - faltando válvula moduladora de água"]
+  }
+};
+
+const EXEMPLO_AAA002 = (()=>{
+  const ugs={},oil={},sep={};
+  for(let i=1;i<=23;i++){
+    const ug="UG"+String(i).padStart(2,"0");
+    const sk="QBB"+String(i).padStart(2,"0")+"1";
+    ugs[ug]={
+      status:{OP:i<=10,SB:i>10&&i<=20,MA:i>20},
+      governador_nivel:{MN:false,OPC:true,MX:false},
+      mancal_acoplado:{MN:false,OPC:true,MX:false},
+      mancal_nao_acoplado:{MN:false,OPC:true,MX:false},
+      unic_status: i>20?"FALHA":"OK",
+      aquecedor_gerador:"OK", carter_status:"OPC",
+      tanque_expansao:{MN:false,OPC:true,MX:false},
+      ug_nivel:"60%"
+    };
+    oil[ug]={ status:{OP:i<=20,SB:i>20,MA:false} };
+    sep[sk]={
+      status:{OP:i<=20,SB:i>20,MA:false},
+      motor_producao:"OK", producao: i<=20?String(i*10)+" L/h":"0",
+      temp_c:"45", vazao:"OPC", carter:"OPC", rotacao_tag:"OK", alarme:"NÃO"
+    };
+  }
+  return {
+    formulario:"AAA002",
+    operador:"Hélio B. de Andrade", turma:"B", supervisor:"Vitor Braga",
+    data:"11/05/2026", horario_inicial:"23:00", horario_final:"01:00", turno:"Noite",
+    dados:{
+      ugs, oil_mist_separator:oil, separadoras_oleo:sep,
+      tanques_manutencao:{
+        VBA901:{nivel:"2400"}, VBA902:{nivel:"2300"},
+        VBA903:{nivel:"2000"}, VBA904:{nivel:"6800"}
+      },
+      temperaturas_baixa_tensao:{
+        LV01:{temperatura_c:"22,5",umidade:"60",self_ligada:"SIM"},
+        LV02:{temperatura_c:"23,0",umidade:"62",self_ligada:"SIM"}
+      },
+      compressores_ar_partida:{
+        TSA901_1:{status:{OP:true,SB:false,MA:false},pressao_ar:"28",nivel_carter:"OPC",horimetro:"1200"},
+        TSA901_2:{status:{OP:false,SB:true,MA:false},pressao_ar:"28",nivel_carter:"OPC",horimetro:"1300"},
+        TSA902_1:{status:{OP:true,SB:false,MA:false},pressao_ar:"29",nivel_carter:"OPC",horimetro:"1400"},
+        TSA902_2:{status:{OP:false,SB:true,MA:false},pressao_ar:"29",nivel_carter:"OPC",horimetro:"1500"}
+      },
+      compressores_ar_instrumentacao:{
+        TCA901:{status:{OP:true,SB:false,MA:false},pressao_ar:"7",nivel_carter:"OPC",horimetro:"500"},
+        TCA902:{status:{OP:false,SB:true,MA:false},pressao_ar:"7",nivel_carter:"OPC",horimetro:"600"},
+        TCA903:{status:{OP:true,SB:false,MA:false},pressao_ar:"7",nivel_carter:"OPC",horimetro:"700"}
+      },
+      secadores_ar_instrumentacao:{
+        TCA901:{OP:true,SB:false,MA:false}, TCA902:{OP:false,SB:true,MA:false},
+        TCA903:{OP:true,SB:false,MA:false}
+      },
+      condicoes_gerais_sala_maquinas:"Sem anormalidades observadas.",
+      rotinas_inspecao:{
+        limpeza_modulos_combustiveis:"SIM", bolhas_tanques_expansao:"NÃO",
+        drenagens_silenciadores:"SIM", vazamentos_oleo_lubrificante:"NÃO",
+        vestigio_condensado:"NÃO",
+        drenagem_grupo_1:true, drenagem_grupo_2:true,
+        drenagem_grupo_3:true, drenagem_grupo_4:true
+      },
+      anotacoes_p1:["UG#21, 22, 23 em manutenção programada."],
+      anotacoes_p2:["Rotinas concluídas conforme checklist operacional."]
+    }
+  };
+})();
+
+function carregarExemplo(){
+  const ex = state.formulario === "AAA001" ? EXEMPLO_AAA001 : EXEMPLO_AAA002;
+  importarJsonTexto(JSON.stringify(ex));
 }
 
-$("btnValidate").addEventListener("click", validarJson);
-$("btnDownload").addEventListener("click", baixarJson);
-$("btnClear").addEventListener("click", limpar);
-$("btnSend").addEventListener("click", enviarJson);
+/* ═══════════════════════════════════════════════════════════════
+   EVENTOS / INICIALIZAÇÃO
+═══════════════════════════════════════════════════════════════ */
 
-$("dropArea").addEventListener("click", () => $("fileInput").click());
-
-$("fileInput").addEventListener("change", async e => {
-  const file = e.target.files[0];
-  if (!file) return;
-
-  $("jsonInput").value = await file.text();
-  validarJson();
+document.querySelectorAll('.form-switch button').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    const novo = b.getAttribute('data-form');
+    if (state.formulario === novo) return;
+    state.formulario = novo;
+    state.dados = {}; // reset dos campos específicos
+    document.querySelectorAll('.form-switch button').forEach(x=>x.classList.toggle('active', x===b));
+    renderForm();
+    toast(`Trocado para ${novo}.`,'ok');
+  });
 });
 
-$("dropArea").addEventListener("dragover", e => {
-  e.preventDefault();
-  $("dropArea").classList.add("drag");
-});
+document.getElementById('btn-download').onclick = downloadJSON;
+document.getElementById('btn-send').onclick = enviarParaAppsScript;
+document.getElementById('btn-clear').onclick = limparTudo;
+document.getElementById('btn-test').onclick = carregarExemplo;
+document.getElementById('btn-validate').onclick = ()=>{
+  updateResumo();
+  const v = validar();
+  if (v.pronto_para_importar) toast("Tudo certo! Pronto para envio.",'ok');
+  else toast(`${v.pendencias.length} pendência(s) — verifique o painel ao lado.`,'warn',4500);
+};
 
-$("dropArea").addEventListener("dragleave", () => {
-  $("dropArea").classList.remove("drag");
-});
+// Import modal
+const modal = document.getElementById('import-modal');
+document.getElementById('btn-import').onclick = ()=>{ modal.classList.add('show'); };
+document.getElementById('btn-close-import').onclick =
+document.getElementById('btn-cancel-import').onclick = ()=>{ modal.classList.remove('show'); };
+document.getElementById('btn-confirm-import').onclick = ()=>{
+  const txt = document.getElementById('json-paste').value;
+  if (!txt.trim()){ toast("Cole o JSON ou selecione um arquivo.",'warn'); return; }
+  importarJsonTexto(txt);
+};
 
-$("dropArea").addEventListener("drop", async e => {
-  e.preventDefault();
-  $("dropArea").classList.remove("drag");
+const drop = document.getElementById('drop-area');
+const fInp = document.getElementById('file-input');
+drop.onclick = ()=>fInp.click();
+fInp.onchange = async (e)=>{
+  const f = e.target.files[0]; if (!f) return;
+  const txt = await f.text();
+  document.getElementById('json-paste').value = txt;
+  importarJsonTexto(txt);
+};
+drop.ondragover = (e)=>{ e.preventDefault(); drop.classList.add('drag'); };
+drop.ondragleave = ()=>drop.classList.remove('drag');
+drop.ondrop = async (e)=>{
+  e.preventDefault(); drop.classList.remove('drag');
+  const f = e.dataTransfer.files[0]; if (!f) return;
+  const txt = await f.text();
+  document.getElementById('json-paste').value = txt;
+  importarJsonTexto(txt);
+};
 
-  const file = e.dataTransfer.files[0];
-  if (!file) return;
-
-  $("jsonInput").value = await file.text();
-  validarJson();
-});
+// Init
+renderForm();
 </script>
 
 </body>
